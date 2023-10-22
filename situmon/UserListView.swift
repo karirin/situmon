@@ -99,6 +99,7 @@ struct UserStatusUpdateView: View {
 struct UserListView: View {
     @ObservedObject var viewModel = UserViewModel()
     @State private var selectedStatus: UserStatus = .available
+    var userIds: [String]
 
     var body: some View {
         ZStack {
@@ -116,18 +117,23 @@ struct UserListView: View {
                         if viewModel.users.isEmpty {
                             Text("Loading...")
                         } else {
-                            ForEach(viewModel.users) { user in
-                                // 現在のユーザーを除外して表示
-                                if user.id != viewModel.currentUserId {
-                                    UserView(user: user)
-                                }
-                            }
+                            ForEach(viewModel.users.filter { userIds.contains($0.id) }) { user in
+                                     if user.id != viewModel.currentUserId {
+                                         UserView(user: user)
+                                     }
+                                 }
                         }
                         
                     }.padding()
                 }
                 .onAppear(perform: {
-                    viewModel.fetchData()
+                    viewModel.fetchData { success in
+                        if success {
+                            print("データの読み込みが成功しました！")
+                        } else {
+                            print("データの読み込みに失敗しました。")
+                        }
+                    }
                 })
             }
         }
@@ -137,6 +143,11 @@ struct UserListView: View {
 
 struct UserListView_Previews: PreviewProvider {
     static var previews: some View {
-        UserListView()
+        // プレビュー用のユーザーIDの配列を作成
+        let userIds = ["1", "2"]
+        
+        // UserListViewにプレビュー用のデータを渡してプレビュー
+        UserListView(userIds: userIds)
     }
 }
+

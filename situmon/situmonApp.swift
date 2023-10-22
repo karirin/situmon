@@ -15,14 +15,14 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 
 @main
 struct situmonApp: App {
-    
+    let userIds = ["1", "2"]
     init() {
         FirebaseApp.configure()
     }
 
     var body: some Scene {
         WindowGroup {
-            UserListView()
+            UserListView(userIds: userIds)
         }
     }
 }

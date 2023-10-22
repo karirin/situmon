@@ -11,7 +11,7 @@ import Firebase
 class UserViewModel: ObservableObject {
     @Published var users: [User] = []
     @Published var currentUserId: String?
-    @Published var rooms: [Room] = [ /* 初期の部屋のデータ */ ]
+    @Published var rooms: [Room] = []
     @Published var searchedUsers: [User] = [] // ユーザー検索結果を格納するための配列
 
     private var ref: DatabaseReference!
@@ -29,7 +29,13 @@ class UserViewModel: ObservableObject {
                 return
             }
             self.currentUserId = user.uid
-            self.fetchData()
+            self.fetchData { success in
+                if success {
+                    print("データの読み込みが成功しました")
+                } else {
+                    print("データの読み込みに失敗しました")
+                }
+            }
         }
     }
     
@@ -37,7 +43,7 @@ class UserViewModel: ObservableObject {
         ref.child(userID).updateChildValues(["status": newStatus.rawValue])
     }
 
-    func fetchData() {
+    func fetchData(completion: @escaping (Bool) -> Void) {
         ref.observe(.value, with: { [weak self] snapshot in
             var newUsers: [User] = []
             for child in snapshot.children {
@@ -49,7 +55,7 @@ class UserViewModel: ObservableObject {
                    let userStatus = UserStatus(rawValue: status) {
                     
                     let rooms = value["rooms"] as? [String: Bool] ?? [:]
-                    print("rooms")
+                    print("fetchData")
                     print(rooms)
                     
                     let user = User(id: childSnapshot.key, name: name, icon: icon, status: userStatus, rooms: rooms)
@@ -57,25 +63,36 @@ class UserViewModel: ObservableObject {
                 }
             }
             self?.users = newUsers
-        })
+            completion(true) // 読み込みが成功したらtrueを渡してコンプリーションハンドラを呼び出す
+        }) { (error) in
+            print("Failed to fetch data:", error.localizedDescription)
+            completion(false) // エラーが発生したらfalseを渡してコンプリーションハンドラを呼び出す
+        }
     }
 
     
         // ユーザーIDで検索する機能
-        func searchUserByName(_ name: String) {
-            if let currentUser = users.first(where: { $0.id == currentUserId }),
-               let userRooms = currentUser.rooms?.keys {
+//        func searchUserByName(_ name: String) {
+//            if let currentUser = users.first(where: { $0.id == currentUserId }),
+//               let userRooms = currentUser.rooms?.keys {
+//
+//                if let user = users.first(where: {
+//                    $0.name == name &&
+//                    !Set($0.rooms?.keys.map { $0 } ?? []).isDisjoint(with: Set(userRooms))
+//                }) {
+//                    print(user)
+//                    searchedUsers = [user]
+//                } else {
+//                    searchedUsers = []
+//                }
+//            }
+//        }
+    
+    func searchUserByName(_ name: String) {
+        print(users)
+        searchedUsers = users.filter { $0.name == name }
+    }
 
-                if let user = users.first(where: {
-                    $0.name == name &&
-                    !Set($0.rooms?.keys.map { $0 } ?? []).isDisjoint(with: Set(userRooms))
-                }) {
-                    searchedUsers = [user]
-                } else {
-                    searchedUsers = []
-                }
-            }
-        }
 
     func createRoom(withName name: String) {
         // 部屋をroomsに追加する
@@ -120,7 +137,14 @@ class UserViewModel: ObservableObject {
         userRoomPath.setValue(true)
         
         // 全てのユーザーのデータを再フェッチ
-        fetchData()
+        fetchData { success in
+            if success {
+                print("データの読み込みが成功しました")
+            } else {
+                print("データの読み込みに失敗しました")
+            }
+        }
+
     }
 
 }

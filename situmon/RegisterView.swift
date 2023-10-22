@@ -167,7 +167,7 @@ struct IconSelectionPage: View {
                     
                     // FirebaseからのユーザーIDを使用してユーザーデータを保存
                     if let userId = firebaseService.currentUserId() {
-                        let user = User(id: userId, name: userName, icon: icon, status: .available, rooms: ["dummy_room": false])
+                        let user = User(id: userId, name: userName, icon: icon, status: .available)
                         firebaseService.registerUser(user: user) { error in
                             if let error = error {
                                 print("Error registering user: \(error.localizedDescription)")

@@ -24,12 +24,11 @@ struct RoomView: View {
                 .font(.headline)
                 .padding(.bottom, 10)
             
-            UserListView(viewModel: viewModel)
+            // 部屋に含まれるユーザーの一覧を表示
+            UserListView(viewModel: viewModel, userIds: room.userIDs)
         }
     }
 }
-
-
 
 struct RoomView_Previews: PreviewProvider {
     static var previews: some View {
