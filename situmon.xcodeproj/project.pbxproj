@@ -7,18 +7,32 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		24A21553A47C81AA81EC133E /* Pods_situmon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D485AA4D92C5A3648C55508 /* Pods_situmon.framework */; };
+		2664E6D92AE2B52A004C71BD /* UserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2664E6D82AE2B52A004C71BD /* UserViewModel.swift */; };
+		2664E6DB2AE3868B004C71BD /* RoomListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2664E6DA2AE3868B004C71BD /* RoomListView.swift */; };
+		2664E6DD2AE386A3004C71BD /* RoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2664E6DC2AE386A3004C71BD /* RoomView.swift */; };
 		26ADE3502AE1883D009BDF48 /* situmonApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26ADE34F2AE1883D009BDF48 /* situmonApp.swift */; };
-		26ADE3522AE1883D009BDF48 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26ADE3512AE1883D009BDF48 /* ContentView.swift */; };
+		26ADE3522AE1883D009BDF48 /* UserListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26ADE3512AE1883D009BDF48 /* UserListView.swift */; };
 		26ADE3542AE1883F009BDF48 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26ADE3532AE1883F009BDF48 /* Assets.xcassets */; };
 		26ADE3572AE1883F009BDF48 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26ADE3562AE1883F009BDF48 /* Preview Assets.xcassets */; };
+		26EBA88C2AE228AF00D43BDF /* RegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26EBA88B2AE228AF00D43BDF /* RegisterView.swift */; };
+		26EBA88E2AE233CE00D43BDF /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 26EBA88D2AE233CD00D43BDF /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2664E6D82AE2B52A004C71BD /* UserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserViewModel.swift; sourceTree = "<group>"; };
+		2664E6DA2AE3868B004C71BD /* RoomListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomListView.swift; sourceTree = "<group>"; };
+		2664E6DC2AE386A3004C71BD /* RoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomView.swift; sourceTree = "<group>"; };
 		26ADE34C2AE1883D009BDF48 /* situmon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = situmon.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		26ADE34F2AE1883D009BDF48 /* situmonApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = situmonApp.swift; sourceTree = "<group>"; };
-		26ADE3512AE1883D009BDF48 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		26ADE3512AE1883D009BDF48 /* UserListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserListView.swift; sourceTree = "<group>"; };
 		26ADE3532AE1883F009BDF48 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		26ADE3562AE1883F009BDF48 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		26EBA88B2AE228AF00D43BDF /* RegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterView.swift; sourceTree = "<group>"; };
+		26EBA88D2AE233CD00D43BDF /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../名称未設定フォルダ 2/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		3D485AA4D92C5A3648C55508 /* Pods_situmon.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_situmon.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		60F8BE254B9D773F61F3C6DC /* Pods-situmon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-situmon.release.xcconfig"; path = "Target Support Files/Pods-situmon/Pods-situmon.release.xcconfig"; sourceTree = "<group>"; };
+		E213DA50B5B37628DC0CCDC9 /* Pods-situmon.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-situmon.debug.xcconfig"; path = "Target Support Files/Pods-situmon/Pods-situmon.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -26,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				24A21553A47C81AA81EC133E /* Pods_situmon.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -37,6 +52,8 @@
 			children = (
 				26ADE34E2AE1883D009BDF48 /* situmon */,
 				26ADE34D2AE1883D009BDF48 /* Products */,
+				3E5BEECAE651FCB2ED9C446E /* Pods */,
+				6EB91C025B50A033B4E985C1 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -52,7 +69,12 @@
 			isa = PBXGroup;
 			children = (
 				26ADE34F2AE1883D009BDF48 /* situmonApp.swift */,
-				26ADE3512AE1883D009BDF48 /* ContentView.swift */,
+				26ADE3512AE1883D009BDF48 /* UserListView.swift */,
+				2664E6DA2AE3868B004C71BD /* RoomListView.swift */,
+				2664E6DC2AE386A3004C71BD /* RoomView.swift */,
+				26EBA88B2AE228AF00D43BDF /* RegisterView.swift */,
+				2664E6D82AE2B52A004C71BD /* UserViewModel.swift */,
+				26EBA88D2AE233CD00D43BDF /* GoogleService-Info.plist */,
 				26ADE3532AE1883F009BDF48 /* Assets.xcassets */,
 				26ADE3552AE1883F009BDF48 /* Preview Content */,
 			);
@@ -67,6 +89,23 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		3E5BEECAE651FCB2ED9C446E /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				E213DA50B5B37628DC0CCDC9 /* Pods-situmon.debug.xcconfig */,
+				60F8BE254B9D773F61F3C6DC /* Pods-situmon.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		6EB91C025B50A033B4E985C1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3D485AA4D92C5A3648C55508 /* Pods_situmon.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -74,9 +113,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 26ADE35A2AE1883F009BDF48 /* Build configuration list for PBXNativeTarget "situmon" */;
 			buildPhases = (
+				41685BBA257164525076F597 /* [CP] Check Pods Manifest.lock */,
 				26ADE3482AE1883D009BDF48 /* Sources */,
 				26ADE3492AE1883D009BDF48 /* Frameworks */,
 				26ADE34A2AE1883D009BDF48 /* Resources */,
+				4E7F19405A14EF1499EE3290 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -127,18 +168,65 @@
 			files = (
 				26ADE3572AE1883F009BDF48 /* Preview Assets.xcassets in Resources */,
 				26ADE3542AE1883F009BDF48 /* Assets.xcassets in Resources */,
+				26EBA88E2AE233CE00D43BDF /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		41685BBA257164525076F597 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-situmon-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		4E7F19405A14EF1499EE3290 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-situmon/Pods-situmon-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-situmon/Pods-situmon-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-situmon/Pods-situmon-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		26ADE3482AE1883D009BDF48 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				26ADE3522AE1883D009BDF48 /* ContentView.swift in Sources */,
+				26EBA88C2AE228AF00D43BDF /* RegisterView.swift in Sources */,
+				2664E6D92AE2B52A004C71BD /* UserViewModel.swift in Sources */,
+				26ADE3522AE1883D009BDF48 /* UserListView.swift in Sources */,
+				2664E6DD2AE386A3004C71BD /* RoomView.swift in Sources */,
 				26ADE3502AE1883D009BDF48 /* situmonApp.swift in Sources */,
+				2664E6DB2AE3868B004C71BD /* RoomListView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -261,6 +349,7 @@
 		};
 		26ADE35B2AE1883F009BDF48 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E213DA50B5B37628DC0CCDC9 /* Pods-situmon.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -290,6 +379,7 @@
 		};
 		26ADE35C2AE1883F009BDF48 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 60F8BE254B9D773F61F3C6DC /* Pods-situmon.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
