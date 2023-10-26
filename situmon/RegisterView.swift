@@ -13,7 +13,11 @@ struct User: Identifiable {
     var name: String
     var icon: String
     var status: UserStatus
-    var rooms: [String: Bool]?
+    var rooms: [String: Bool]
+    
+    func activeRoomIDs() -> [String] {
+        return rooms.filter { $0.value }.map { $0.key }
+    }
 }
 
 class FirebaseService {
@@ -167,7 +171,7 @@ struct IconSelectionPage: View {
                     
                     // FirebaseからのユーザーIDを使用してユーザーデータを保存
                     if let userId = firebaseService.currentUserId() {
-                        let user = User(id: userId, name: userName, icon: icon, status: .available)
+                        let user = User(id: userId, name: userName, icon: icon, status: .available, rooms: [:])
                         firebaseService.registerUser(user: user) { error in
                             if let error = error {
                                 print("Error registering user: \(error.localizedDescription)")

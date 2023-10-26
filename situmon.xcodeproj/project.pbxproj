@@ -11,10 +11,14 @@
 		2664E6D92AE2B52A004C71BD /* UserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2664E6D82AE2B52A004C71BD /* UserViewModel.swift */; };
 		2664E6DB2AE3868B004C71BD /* RoomListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2664E6DA2AE3868B004C71BD /* RoomListView.swift */; };
 		2664E6DD2AE386A3004C71BD /* RoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2664E6DC2AE386A3004C71BD /* RoomView.swift */; };
+		2664E6E32AE6DA38004C71BD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2664E6E22AE6DA38004C71BD /* ContentView.swift */; };
 		26ADE3502AE1883D009BDF48 /* situmonApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26ADE34F2AE1883D009BDF48 /* situmonApp.swift */; };
 		26ADE3522AE1883D009BDF48 /* UserListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26ADE3512AE1883D009BDF48 /* UserListView.swift */; };
 		26ADE3542AE1883F009BDF48 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26ADE3532AE1883F009BDF48 /* Assets.xcassets */; };
 		26ADE3572AE1883F009BDF48 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26ADE3562AE1883F009BDF48 /* Preview Assets.xcassets */; };
+		26CD50F22AE6DBD5004AF702 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26CD50EF2AE6DBD4004AF702 /* SettingView.swift */; };
+		26CD50F32AE6DBD5004AF702 /* TermsOfServiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26CD50F02AE6DBD5004AF702 /* TermsOfServiceView.swift */; };
+		26CD50F42AE6DBD5004AF702 /* PrivacyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26CD50F12AE6DBD5004AF702 /* PrivacyView.swift */; };
 		26EBA88C2AE228AF00D43BDF /* RegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26EBA88B2AE228AF00D43BDF /* RegisterView.swift */; };
 		26EBA88E2AE233CE00D43BDF /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 26EBA88D2AE233CD00D43BDF /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
@@ -23,11 +27,15 @@
 		2664E6D82AE2B52A004C71BD /* UserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserViewModel.swift; sourceTree = "<group>"; };
 		2664E6DA2AE3868B004C71BD /* RoomListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomListView.swift; sourceTree = "<group>"; };
 		2664E6DC2AE386A3004C71BD /* RoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomView.swift; sourceTree = "<group>"; };
+		2664E6E22AE6DA38004C71BD /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		26ADE34C2AE1883D009BDF48 /* situmon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = situmon.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		26ADE34F2AE1883D009BDF48 /* situmonApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = situmonApp.swift; sourceTree = "<group>"; };
 		26ADE3512AE1883D009BDF48 /* UserListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserListView.swift; sourceTree = "<group>"; };
 		26ADE3532AE1883F009BDF48 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		26ADE3562AE1883F009BDF48 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		26CD50EF2AE6DBD4004AF702 /* SettingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SettingView.swift; path = ../../sabusuku/sabusuku/SettingView.swift; sourceTree = "<group>"; };
+		26CD50F02AE6DBD5004AF702 /* TermsOfServiceView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TermsOfServiceView.swift; path = ../../sabusuku/sabusuku/TermsOfServiceView.swift; sourceTree = "<group>"; };
+		26CD50F12AE6DBD5004AF702 /* PrivacyView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PrivacyView.swift; path = ../../sabusuku/sabusuku/PrivacyView.swift; sourceTree = "<group>"; };
 		26EBA88B2AE228AF00D43BDF /* RegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterView.swift; sourceTree = "<group>"; };
 		26EBA88D2AE233CD00D43BDF /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../名称未設定フォルダ 2/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		3D485AA4D92C5A3648C55508 /* Pods_situmon.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_situmon.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -69,11 +77,15 @@
 			isa = PBXGroup;
 			children = (
 				26ADE34F2AE1883D009BDF48 /* situmonApp.swift */,
+				2664E6E22AE6DA38004C71BD /* ContentView.swift */,
 				26ADE3512AE1883D009BDF48 /* UserListView.swift */,
 				2664E6DA2AE3868B004C71BD /* RoomListView.swift */,
 				2664E6DC2AE386A3004C71BD /* RoomView.swift */,
 				26EBA88B2AE228AF00D43BDF /* RegisterView.swift */,
 				2664E6D82AE2B52A004C71BD /* UserViewModel.swift */,
+				26CD50F12AE6DBD5004AF702 /* PrivacyView.swift */,
+				26CD50EF2AE6DBD4004AF702 /* SettingView.swift */,
+				26CD50F02AE6DBD5004AF702 /* TermsOfServiceView.swift */,
 				26EBA88D2AE233CD00D43BDF /* GoogleService-Info.plist */,
 				26ADE3532AE1883F009BDF48 /* Assets.xcassets */,
 				26ADE3552AE1883F009BDF48 /* Preview Content */,
@@ -223,10 +235,14 @@
 			files = (
 				26EBA88C2AE228AF00D43BDF /* RegisterView.swift in Sources */,
 				2664E6D92AE2B52A004C71BD /* UserViewModel.swift in Sources */,
+				2664E6E32AE6DA38004C71BD /* ContentView.swift in Sources */,
 				26ADE3522AE1883D009BDF48 /* UserListView.swift in Sources */,
 				2664E6DD2AE386A3004C71BD /* RoomView.swift in Sources */,
+				26CD50F22AE6DBD5004AF702 /* SettingView.swift in Sources */,
 				26ADE3502AE1883D009BDF48 /* situmonApp.swift in Sources */,
 				2664E6DB2AE3868B004C71BD /* RoomListView.swift in Sources */,
+				26CD50F32AE6DBD5004AF702 /* TermsOfServiceView.swift in Sources */,
+				26CD50F42AE6DBD5004AF702 /* PrivacyView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -8,11 +8,10 @@
 import SwiftUI
 
 struct Room: Identifiable {
-    var id: UUID
+    var id: String // 一意のID
     var name: String
-    var userIDs: [String]  // ユーザーIDの配列
+    var userIDs: [String]
 }
-
 
 struct RoomView: View {
     var room: Room
@@ -40,7 +39,7 @@ struct RoomView_Previews: PreviewProvider {
         let users = [user1, user2]
         
         // Roomのインスタンスを作成
-        let room = Room(id: UUID(), name: "部屋1", userIDs: users.map { $0.id })
+        let room = Room(id: "", name: "部屋1", userIDs: users.map { $0.id })
         
         let viewModel = UserViewModel()
         viewModel.users = users
