@@ -16,6 +16,38 @@ struct UserSearchView: View {
     @State private var hasSearched = false
     @State private var showAlert = false
     
+    func addUserToRoom(_ user: User, to roomName: String) {
+        // 部屋を探す
+        if let roomIndex = viewModel.activeRooms.firstIndex(where: { $0.name == roomName }) {
+            // ユーザIDが部屋のユーザIDリストに含まれていない場合、追加する
+            if !viewModel.activeRooms[roomIndex].userIDs.contains(user.id) {
+                viewModel.activeRooms[roomIndex].userIDs.append(user.id)
+                alertMessage = "ユーザーを\(roomName)に追加しました！"
+            } else {
+                // 既にグループにユーザーが存在する場合
+                alertMessage = "このユーザーはすでに\(roomName)に入っています"
+            }
+            showAlert = true
+            selectedRoom = "" // 部屋を追加した後は選択をクリア
+        } else {
+            // 部屋が見つからない場合のエラーメッセージ
+            alertMessage = "\(roomName)は存在しません"
+            showAlert = true
+        }
+    }
+
+    // ユーザーを部屋に追加するボタンのアクション
+    var addUserToRoomAction: () -> Void {
+        print("addUserToRoomAction1")
+        return {
+            guard let user = viewModel.searchedUsers.first else { print("return")
+                return }
+            print("addUserToRoomAction2")
+            viewModel.addUserToRoom(user, to: selectedRoom)
+            addUserToRoom(user, to: selectedRoom)
+        }
+    }
+    
     var body: some View {
         VStack {
             Button(action: {
@@ -70,6 +102,7 @@ struct UserSearchView: View {
             .padding()
             
             Button(action: {
+                print("Searching for user with name: \(inputUserName)")
                 viewModel.searchUserByName(inputUserName)
                 inputUserName = ""
                 hasSearched = true
@@ -112,12 +145,20 @@ struct UserSearchView: View {
                                 .font(.system(size: 40))
                         }
                         VStack{
-                            Text("部屋を選択してください")
+                            Text("グループを選択してください")
                                 .font(.system(size: 20))
                             Picker("", selection: $selectedRoom) {
                                 ForEach(getUserRooms(), id: \.self) { roomName in
                                     Text(roomName).tag(roomName)
                                         .font(.system(size: 40))
+                                }
+                            }
+                            .onAppear {
+                                let rooms = getUserRooms()
+                                print("rooms:\(rooms)")
+                                if !rooms.isEmpty {
+                                    selectedRoom = rooms[0]
+                                    print("selectedRoom:\(selectedRoom)")
                                 }
                             }
                             .pickerStyle(MenuPickerStyle()) // メニュー形式のピッカーにする
@@ -128,23 +169,7 @@ struct UserSearchView: View {
                             )
                         }
                         .padding()
-                        Button(action: {
-                            let userRooms = getUserRooms()
-                            if !selectedRoom.isEmpty {
-                                print("選択された部屋: \(selectedRoom)")
-                                print("ユーザーの部屋: \(user.rooms)")
-                                if user.rooms[selectedRoom] == true {
-                                    // 既にグループにユーザーが存在する場合
-                                    alertMessage = "このユーザーはすでに\(selectedRoom)に入っています"
-                                    showAlert = true
-                                } else {
-                                    viewModel.addUserToRoom(user, to: selectedRoom)
-                                    alertMessage = "ユーザーを\(selectedRoom)に追加しました！"
-                                    showAlert = true
-                                    selectedRoom = "" // 部屋を追加した後は選択をクリア
-                                }
-                            }
-                        }) {
+                        Button(action: addUserToRoomAction) {
                             Text("ユーザーをグループに追加")
                                 .padding(.vertical, 10)
                                 .padding(.horizontal, 25)
@@ -152,9 +177,10 @@ struct UserSearchView: View {
                                 .foregroundColor(.white)
                                 .background(RoundedRectangle(cornerRadius: 25)
                                                 .fill(Color("btnColor")))
-                                .opacity(0.5)
+                                .opacity(selectedRoom.isEmpty ? 0.5 : 1.0)
                                 .padding()
                         }
+//                        .disabled(selectedRoom.isEmpty)
                         .alert(isPresented: $showAlert) {
                             Alert(title: Text(""), message: Text(alertMessage), dismissButton: .default(Text("OK")))
                         }
@@ -173,11 +199,13 @@ struct UserSearchView: View {
         Spacer()
     }
     func getUserRooms() -> [String] {
-        if let currentUser = viewModel.users.first(where: { $0.id == viewModel.currentUserId }) {
-            let rooms = currentUser.rooms ?? [:]  // nilの場合は空の辞書を返す
-            return rooms.filter { $0.value == true }.keys.sorted()
-        }
-        return []
+        // 現在のユーザIDを確認
+        guard let currentUserId = viewModel.currentUserId else { return [] }
+
+        // アクティブな部屋をフィルタリングして、部屋の名前の配列を返す
+        return viewModel.activeRooms.filter { room in
+            return room.userIDs.contains(currentUserId)
+        }.map { $0.name }.sorted()
     }
 }
 
@@ -218,7 +246,6 @@ struct RoomCreationPopupView: View {
             
                 ZStack(alignment: .trailing){
                     TextField("グループ名", text: $newRoomName)
-//                        .frame(width:.infinity)
                         .onChange(of: newRoomName) { newValue in
                             if newValue.count > 20 {
                                 newRoomName = String(newValue.prefix(20))
@@ -244,7 +271,7 @@ struct RoomCreationPopupView: View {
                 self.presentationMode.wrappedValue.dismiss()
             }) {
                     // ボタンの背景
-                    Text("グループを作成")
+            Text("グループを作成")
                 .padding(.vertical,10)
                 .padding(.horizontal,25)
                 .font(.headline)
@@ -280,20 +307,29 @@ struct RoomListView: View {
         ZStack{
             Color("Color")
                     .edgesIgnoringSafeArea(.all)
-                ScrollView {
-                    VStack(alignment: .leading) {
-                        List(viewModel.activeRooms) { room in
-                            VStack(alignment: .leading) {
+//                ScrollView {
+//                    VStack(alignment: .leading) {
+                        List(viewModel.activeRooms) { room in                            VStack(alignment: .leading) {
                                 Text("Room Name: \(room.name)")
-                                Text("Room ID: \(room.id)")
                             }
-                        }
-                    }
+//                        }
+//                    }
                 }
                     .padding()
                     .onAppear {
-                        viewModel.loadData()
+                        viewModel.authenticateUser { isAuthenticated in
+                            if isAuthenticated {
+                                // 認証成功時の処理
+                            } else {
+                                // 認証失敗時の処理
+                            }
+                        }
                     }
+                    // 引数の値が更新されるたびに内部が実行される
+                    .onReceive(viewModel.$activeRooms) { activeRooms in
+                        print("activeRooms updated:", activeRooms)
+                    }
+
                 }
         
 

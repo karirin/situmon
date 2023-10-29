@@ -19,58 +19,76 @@ class UserViewModel: ObservableObject {
     
     var user: User? {
         didSet {
-            updateActiveRooms()
+//            updateActiveRooms()
         }
     }
 
     init() {
         ref = Database.database().reference(withPath: "users")
-        authenticateUser()
+//        authenticateUser()
         self.users = users
 
          // userプロパティを初期化
          if let currentUserId = currentUserId {
              fetchUserData(userId: currentUserId) { user in
                  self.user = user
-                 self.updateActiveRooms() // userがセットされた後に呼び出す
+//                 self.updateActiveRooms() // userがセットされた後に呼び出す
              }
          }
-        fetchUserRooms { rooms in
-            if let rooms = rooms {
-                // rooms が取得できた時の処理
-                print("Rooms: \(rooms)")
-            } else {
-                // rooms の取得に失敗した時の処理
-                print("Rooms の取得に失敗しました")
-            }
-        }
+//        fetchUserRooms { rooms in
+//            if let rooms = rooms {
+//                // rooms が取得できた時の処理
+//                print("Rooms: \(rooms)")
+//            } else {
+//                // rooms の取得に失敗した時の処理
+//                print("Rooms の取得に失敗しました")
+//            }
+//        }
     }
     
     func loadData() {
-        authenticateUser()
+        authenticateUser { [weak self] isAuthenticated in
+            if isAuthenticated {
+                // 認証成功時の処理
+            } else {
+                // 認証失敗時の処理
+            }
+        }
     }
 
-    func authenticateUser() {
+    func authenticateUser(completion: @escaping (Bool) -> Void) {
+        print("teteteststst")
         Auth.auth().signInAnonymously { [weak self] (authResult, error) in
-            guard let user = authResult?.user else {
-                print("Failed to login or retrieve user: \(error?.localizedDescription ?? "")")
+            if let error = error {
+                print("Failed to login or retrieve user:", error.localizedDescription)
+                completion(false)  // 認証に失敗した場合は false を渡す
                 return
             }
+            
+            guard let user = authResult?.user else {
+                print("Failed to retrieve user after login")
+                completion(false)
+                return
+            }
+            
             self?.currentUserId = user.uid
+            print("Current User ID111: \(String(describing: self?.currentUserId))")
+            
             self?.fetchData { success in
                 if success {
                     print("データの読み込みが成功しました")
+                    self?.fetchUserRooms { rooms in
+                        if let rooms = rooms {
+                            self?.activeRooms = rooms
+                            print("Active rooms fetched:", rooms)
+                        } else {
+                            print("Failed to fetch active rooms")
+                        }
+                    }
+                    completion(true)  // データの読み込みと部屋の取得が成功した場合は true を渡す
                 } else {
                     print("データの読み込みに失敗しました")
-                }
-            }
-            self?.fetchUserRooms { rooms in
-                if let rooms = rooms {
-                    // rooms が取得できた時の処理
-                    print("Rooms: \(rooms)")
-                } else {
-                    // rooms の取得に失敗した時の処理
-                    print("Rooms の取得に失敗しました")
+                    completion(false)
                 }
             }
         }
@@ -84,6 +102,7 @@ class UserViewModel: ObservableObject {
         ref.observe(.value, with: { [weak self] snapshot in
             var newUsers: [User] = []
             for child in snapshot.children {
+                print("Child snapshot: \(child)")
                 if let childSnapshot = child as? DataSnapshot,
                    let value = childSnapshot.value as? [String: Any],
                    let name = value["name"] as? String,
@@ -91,99 +110,91 @@ class UserViewModel: ObservableObject {
                    let status = value["status"] as? String,
                    let userStatus = UserStatus(rawValue: status) {
                     
-                    let rooms = value["rooms"] as? [String: Bool] ?? [:]
-                    
-                    let user = User(id: childSnapshot.key, name: name, icon: icon, status: userStatus, rooms: rooms)
+                    let user = User(id: childSnapshot.key, name: name, icon: icon, status: userStatus, rooms: [:]) // roomsはここではセットしない
                     newUsers.append(user)
-                }
-                if let strongSelf = self, let currentUserId = strongSelf.currentUserId {
-                    strongSelf.fetchUserData(userId: currentUserId) { user in
-                        strongSelf.user = user
-                        strongSelf.updateActiveRooms()
-                    }
                 }
             }
             self?.users = newUsers
-            self?.updateActiveRooms()
-            completion(true) // 読み込みが成功したらtrueを渡してコンプリーションハンドラを呼び出す
+            print("Users after fetching: \(newUsers)")
+//            self?.updateActiveRooms()
+            completion(true)
         }) { (error) in
             print("Failed to fetch data:", error.localizedDescription)
-            completion(false) // エラーが発生したらfalseを渡してコンプリーションハンドラを呼び出す
+            completion(false)
         }
     }
-    
+
+    func fetchRoomDetails(roomName: String, completion: @escaping (Room?) -> Void) {
+        let roomsRef = Database.database().reference(withPath: "rooms/\(roomName)/members")
+        roomsRef.observeSingleEvent(of: .value, with: { snapshot in
+            guard let userIDsDict = snapshot.value as? [String: Bool] else {
+                completion(nil)
+                return
+            }
+            let userIDs = Array(userIDsDict.keys)
+            let room = Room(id: UUID().uuidString, name: roomName, userIDs: userIDs)
+            completion(room)
+        })
+    }
+
     func fetchUserRooms(completion: @escaping ([Room]?) -> Void) {
         guard let userId = self.currentUserId else {
-            print("currentUserId is nil")
+            print("User is not logged in")
             completion(nil)
             return
         }
 
-        let userRoomsRef = Database.database().reference(withPath: "users/\(userId)/rooms")
-        userRoomsRef.observe(.value, with: { [weak self] snapshot in
-            print("Snapshot received: \(snapshot)")
+//        print("Fetching rooms for user ID: \(userId)")
+        
+        ref.child(userId).observeSingleEvent(of: .value, with: { [weak self] snapshot in
+//            print("Fetched user data: \(snapshot.value)")
+            
+            // デバッグ: ユーザーのデータ全体をログに出力
+//            print("User data for debugging: \(snapshot)")
 
-            guard let roomNames = snapshot.value as? [String: Bool] else {
-                print("Failed to cast snapshot value to [String: Bool]")
+            guard let value = snapshot.value as? [String: Any] else {
+                print("Could not cast snapshot value to [String: Any]")
                 completion(nil)
                 return
             }
 
-            let group = DispatchGroup()
+            // デバッグ: roomsのデータをログに出力
+//            print("Rooms data for debugging: \(value["rooms"])")
+
+            guard let roomsDict = value["rooms"] as? [String: Bool] else {
+                print("Could not fetch user's rooms")
+                completion(nil)
+                return
+            }
+//            print("roomsDict.keys:\(roomsDict.keys)")
+            let roomNames = Array(roomsDict.keys)
+            
             var rooms: [Room] = []
-
-            for (roomName, _) in roomNames {
+            let group = DispatchGroup()
+            
+            for roomName in roomNames {
                 group.enter()
-                self?.fetchRoomDetails(roomName: roomName, completion: { room in
-                    defer { group.leave() }
-
+                self?.fetchRoomDetails(roomName: roomName) { room in
                     if let room = room {
                         rooms.append(room)
-                    } else {
-                        print("Failed to fetch details for room: \(roomName)")
                     }
-                })
+                    group.leave()
+                }
             }
-
+            
             group.notify(queue: .main) {
-                self?.activeRooms = rooms
-                print("activeRooms updated: \(self?.activeRooms)")
                 completion(rooms)
             }
         })
     }
 
 
-    func fetchRoomDetails(roomName: String, completion: @escaping (Room?) -> Void) {
-        ref.observeSingleEvent(of: .value, with: { snapshot in
-            var userIDs: [String] = []
-            
-            for child in snapshot.children {
-                if let childSnapshot = child as? DataSnapshot,
-                   let value = childSnapshot.value as? [String: Any],
-                   let rooms = value["rooms"] as? [String: Bool],
-                   rooms[roomName] == true {
-//                    print("rooms")
-//                    print(rooms)
-                    userIDs.append(childSnapshot.key)
-                }
-            }
-            
-            if userIDs.isEmpty {
-                completion(nil)
-            } else {
-                let room = Room(id: UUID().uuidString, name: roomName, userIDs: userIDs)
-                completion(room)
-            }
-        })
-    }
+//    func updateActiveRooms() {
+//        fetchUserRooms { rooms in
+//            self.activeRooms = rooms ?? []
+//        }
+//    }
 
-
-    func updateActiveRooms() {
-        activeRooms = rooms.filter { room in
-            user?.rooms[room.name] == true
-        }
-    }
     
     func fetchUserData(userId: String, completion: @escaping (User?) -> Void) {
         ref.child(userId).observe(.value, with: { snapshot in
@@ -207,62 +218,78 @@ class UserViewModel: ObservableObject {
             completion(nil)
         }
     }
-    
+
     func searchUserByName(_ name: String) {
-        searchedUsers = users.filter { $0.name == name }
+        print("Searching for user with name: \(name)")
+        print("Current users: \(users)")
+        searchedUsers = users.filter { $0.name.lowercased().contains(name.lowercased()) }
+        print("Found users: \(searchedUsers)")
     }
 
-    func createRoom(withName name: String) {
-        // 部屋をroomsに追加する
-        let newRoom = Room(id: UUID().uuidString, name: name, userIDs: [])
-        self.rooms.append(newRoom)
 
-        // 現在のユーザーのroom情報を更新する
-        if let userId = self.currentUserId {
-            let userRef = ref.child(userId)
-            userRef.runTransactionBlock({ (currentData: MutableData) -> TransactionResult in
-                var userData = currentData.value as? [String: Any] ?? [:]
-                var userRooms = userData["rooms"] as? [String: Bool] ?? [:]
-                userRooms[name] = true
-                userData["rooms"] = userRooms
-                currentData.value = userData
-                return TransactionResult.success(withValue: currentData)
-            }) { (error, committed, snapshot) in
-                if let error = error {
-                    print("Error updating user rooms: \(error.localizedDescription)")
+
+    func createRoom(withName name: String) {
+        print("createRoom")
+        if self.currentUserId == nil {
+            print("createRoom0")
+            authenticateUser { [weak self] isAuthenticated in
+                print("createRoom333")
+                if isAuthenticated {
+                    self?.proceedToCreateRoom(withName: name)
                 } else {
-                    print("User rooms updated successfully!")
+                    print("User authentication failed")
+                }
+            }
+        } else {
+            proceedToCreateRoom(withName: name)
+        }
+    }
+
+    func proceedToCreateRoom(withName name: String) {
+        print("createRoom2")
+        guard let userId = self.currentUserId else {
+            print("createRoom User is not logged in")
+            return
+        }
+        print("createRoom1")
+        let roomsRef = Database.database().reference(withPath: "rooms/\(name)")
+        let userRoomsRef = Database.database().reference(withPath: "users/\(userId)/rooms")
+        
+        // 部屋を作成
+        roomsRef.setValue(["members": [userId: true]]) { [weak self] error, _ in
+            if let error = error {
+                print("Error creating room: \(error.localizedDescription)")
+            } else {
+                print("Room created successfully")
+                
+                // ユーザーの rooms フィールドを更新
+                userRoomsRef.updateChildValues([name: true]) { error, _ in
+                    if let error = error {
+                        print("Error updating user's rooms: \(error.localizedDescription)")
+                    } else {
+                        print("User's rooms updated successfully")
+                        
+                        // オプション: 必要に応じて他の処理をここに追加
+                    }
                 }
             }
         }
     }
 
+
+
     // 指定の部屋にユーザーを追加する機能
     func addUserToRoom(_ user: User, to roomName: String) {
-        // 既存のロジックの修正
-        if let index = rooms.firstIndex(where: { $0.name == roomName }) {
-            if !rooms[index].userIDs.contains(user.id) { // 重複を防ぐ
-                rooms[index].userIDs.append(user.id)
-            }
-        } else {
-            // もし部屋が存在しなければ新しく作成
-            let newRoom = Room(id: UUID().uuidString, name: roomName, userIDs: [user.id])
-            rooms.append(newRoom)
-        }
-
-        // ユーザーのroom情報を更新するロジック
-        let userRoomPath = ref.child(user.id).child("rooms").child(roomName)
-        userRoomPath.setValue(true)
-        
-        // 全てのユーザーのデータを再フェッチ
-        fetchData { success in
-            if success {
-                print("データの読み込みが成功しました")
+        print("test2")
+        let roomMembersRef = Database.database().reference(withPath: "rooms/\(roomName)/members/\(user.id)")
+        print("test1")
+        roomMembersRef.setValue(true) { error, _ in
+            if let error = error {
+                print("Error adding user to room: \(error.localizedDescription)")
             } else {
-                print("データの読み込みに失敗しました")
+                print("User added to room successfully")
             }
         }
-
     }
 
 }
