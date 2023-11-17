@@ -154,12 +154,12 @@ class UserViewModel: ObservableObject {
     func fetchRoomDetails(roomName: String, completion: @escaping (Room?) -> Void) {
         let roomsRef = Database.database().reference(withPath: "rooms/\(roomName)/members")
         roomsRef.observeSingleEvent(of: .value, with: { snapshot in
-            guard let userIDsDict = snapshot.value as? [String: Bool] else {
+            guard let members = snapshot.value as? [String: Bool] else {
                 completion(nil)
                 return
             }
-            let userIDs = Array(userIDsDict.keys)
-            let room = Room(id: UUID().uuidString, name: roomName, userIDs: userIDs)
+            let userIDs = Array(members.keys)
+            let room = Room(id: UUID().uuidString, name: roomName, members: members, userIDs: userIDs)
             completion(room)
         })
     }
@@ -224,7 +224,7 @@ class UserViewModel: ObservableObject {
 
         let usersRef = Database.database().reference(withPath: "users")
         usersRef.child(userId).child("rooms").observeSingleEvent(of: .value, with: { [weak self] snapshot in
-            print("snapshot:\(snapshot)")
+//            print("snapshot:\(snapshot)")
             guard let roomsStatusDict = snapshot.value as? [String: Bool] else {
                 print("Could not fetch user's rooms status")
                 completion(nil)

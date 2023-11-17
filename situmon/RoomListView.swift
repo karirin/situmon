@@ -324,6 +324,7 @@ struct RoomListView: View {
     @State private var showingDeleteAlert = false
     @State private var roomToDelete: Room?
     var selectRoom: (Room) -> Void
+    @State private var isNavigating = false
     
     var body: some View {
         NavigationView {
@@ -340,17 +341,19 @@ struct RoomListView: View {
                     .background(Color("btnColor"))
                     ScrollView {
                         VStack(alignment: .leading) {
-                            ForEach(viewModel.sortedActiveRooms.indices, id: \.self) { index in
-                                let room = viewModel.activeRooms[index]
-                                ZStack(alignment: .trailing) {
-                                    NavigationLink(destination: RoomView(room: room, viewModel: viewModel)) {
+                            ForEach(viewModel.sortedActiveRooms) { room in
+                                ZStack {
+                                    NavigationLink(destination: RoomView(room: room, viewModel: viewModel), isActive: $isNavigating) {
+                                        EmptyView()
+                                    }
                                         HStack {
                                             Text(room.name)
                                                 .frame(maxWidth: .infinity)
                                                 .padding()
                                         }
                                         .onTapGesture {
-                                            selectRoom(room)
+                                            self.selectedRoom = room
+                                            self.isNavigating = true
                                         }
                                         .frame(width: .infinity)
                                         .background(Color.white)
@@ -425,7 +428,7 @@ struct RoomListView: View {
             }
         }
     }
-}
+
 
 
 struct roomListView_Previews: PreviewProvider {
@@ -438,7 +441,7 @@ struct roomListView_Previews: PreviewProvider {
         let users = [user1, user2]
         
         // Roomのインスタンスを作成
-        let room = Room(id: "", name: "部屋1", userIDs: users.map { $0.id })
+        let room = Room(id: "", name: "部屋1", members: ["2": true], userIDs: users.map { $0.id })
         RoomListView(selectRoom: { room in
 //            self.selectedRoom = room
         })

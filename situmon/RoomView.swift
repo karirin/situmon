@@ -11,6 +11,7 @@ import Firebase
 struct Room: Identifiable {
     var id: String
     var name: String
+    var members: [String: Bool]
     var userIDs: [String]
     var isSwiped: Bool = false
     var isActive: Bool = true
@@ -57,6 +58,9 @@ struct RoomView: View {
             // 部屋に含まれるユーザーの一覧を表示
             UserListView(viewModel: viewModel, userIds: room.userIDs)
         }
+        .onAppear{
+            print("roomName:\(room.name)")
+        }
         .alert(isPresented: $showingDeleteAlert) {
            Alert(
                title: Text("退会"),
@@ -84,7 +88,7 @@ struct RoomView_Previews: PreviewProvider {
         let users = [user1, user2]
         
         // Roomのインスタンスを作成
-        let room = Room(id: "", name: "部屋1", userIDs: users.map { $0.id })
+        let room = Room(id: "", name: "部屋1", members: ["2" :true], userIDs: users.map { $0.id })
         
         let viewModel = UserViewModel()
         viewModel.users = users

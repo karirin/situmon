@@ -37,22 +37,22 @@ struct UserView: View {
                 // ステータスに応じた色の丸表示
                 Circle()
                     .fill(user.status.color)
-                    .frame(width: 20, height: 20)
-                    .padding(.trailing, 10)
+                    .frame(width: 10, height: 10)
+                    .padding(.trailing, 5)
                 
                 // アイコン表示
                 VStack{
                     Image(user.icon)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 50, height: 50)
+                        .frame(width: 30, height: 30)
                         .clipShape(Circle())
                     Text(user.name)
-                }.padding(.trailing, 10)
+                }.padding(.trailing, 5)
                 
                 // ステータス表示
                 Text(user.status.rawValue)
-                    .font(.system(size:22))
+                    .font(.system(size:18))
                 //                .padding(.leading, 10)
                 Spacer()
             }

@@ -38,9 +38,11 @@ class FirebaseService {
             "status": "質問して大丈夫です",
             "rooms": user.rooms ?? [:]  // ここで空の辞書を設定
         ]
+        print("usersRef b:\(usersRef)")
         usersRef.setValue(userDict) { error, _ in
             completion(error)
         }
+        print("usersRef a:\(usersRef)")
     }
 
 }
@@ -232,6 +234,7 @@ struct IconSelectionPage: View {
     @State private var navigateToContentView: Bool = false
     
     var body: some View {
+        NavigationView{
             VStack {
                 IconSelectionView(selectedIcon: $selectedIcon, icons: icons)
                     .padding(.bottom)
@@ -254,35 +257,38 @@ struct IconSelectionPage: View {
                         print("No user is currently logged in.")
                     }
                     self.navigateToContentView = true
-            }) {
-                ZStack {
-                // ボタンの背景
-                RoundedRectangle(cornerRadius: 25)
-                    .fill(Color.white)
-                    .frame(width: 300, height: 70)
-                    .shadow(radius: 3) // ここで影をつけます
-                Text("登録")
-                    .shadow(radius: 0)
-            }
+                }) {
+                    ZStack {
+                        // ボタンの背景
+                        RoundedRectangle(cornerRadius: 25)
+                            .fill(Color.white)
+                            .frame(width: 300, height: 70)
+                            .shadow(radius: 3) // ここで影をつけます
+                        Text("登録")
+                            .shadow(radius: 0)
+                    }
                 }
-            .font(.system(size:26))
-            .foregroundColor(Color.gray)
-            .background(RoundedRectangle(cornerRadius: 25))
-                        
-                        }
+                .font(.system(size:26))
+                .foregroundColor(Color.gray)
+                .background(RoundedRectangle(cornerRadius: 25))
+                
+            }
+            .navigationBarBackButtonHidden(true)
+            .navigationBarItems(leading: Button(action: {
+                self.presentationMode.wrappedValue.dismiss()
+            }) {
+                Image(systemName: "chevron.left")
+                    .foregroundColor(.black)
+                Text("戻る")
+                    .foregroundColor(.black)
+            })
+            .background(
+                NavigationLink("", destination: ContentView().navigationBarBackButtonHidden(true), isActive: $navigateToContentView)
+                    .hidden() // NavigationLinkを非表示にする
+            )
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
         .navigationBarBackButtonHidden(true)
-        .navigationBarItems(leading: Button(action: {
-            self.presentationMode.wrappedValue.dismiss()
-        }) {
-            Image(systemName: "chevron.left")
-                .foregroundColor(.black)
-            Text("戻る")
-                .foregroundColor(.black)
-        })
-        .background(
-            NavigationLink("", destination: ContentView().navigationBarBackButtonHidden(true), isActive: $navigateToContentView)
-                .hidden() // NavigationLinkを非表示にする
-        )
     }
 }
 
