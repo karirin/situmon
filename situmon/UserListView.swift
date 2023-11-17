@@ -66,6 +66,9 @@ struct UserView: View {
                     }
                 }
             }
+            .onAppear{
+//                print("UserView user:\(user)")
+            }
         }
         .padding()
         .background(Color.white)
@@ -124,11 +127,15 @@ struct UserListView: View {
                                  }
                         }
                         
-                    }.padding()
+                    }
+                    .padding()
                 }
                 .onAppear(perform: {
                     viewModel.fetchData { success in
                         if success {
+                            print("test")
+//                            print(viewModel.users)
+                            print("test")
                             print("データの読み込みが成功しました！")
                         } else {
                             print("データの読み込みに失敗しました。")

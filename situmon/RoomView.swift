@@ -6,26 +6,71 @@
 //
 
 import SwiftUI
+import Firebase
 
 struct Room: Identifiable {
-    var id: String // 一意のID
+    var id: String
     var name: String
     var userIDs: [String]
+    var isSwiped: Bool = false
+    var isActive: Bool = true
 }
+
 
 struct RoomView: View {
     var room: Room
     @ObservedObject var viewModel: UserViewModel
+    @Environment(\.presentationMode) var presentationMode
+    @State private var showingDeleteAlert = false
+    @State private var roomToDelete: Room?
 
     var body: some View {
-        VStack(alignment: .leading) {
-            Text(room.name)
-                .font(.headline)
-                .padding(.bottom, 10)
-            
+        VStack {
+            HStack{
+                Button(action: {
+                    self.presentationMode.wrappedValue.dismiss()
+                }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.black)
+                    Text("戻る")
+                        .foregroundColor(.black)
+                }
+                .padding(.leading)
+                Spacer()
+                Text(room.name)
+                    .font(.system(size: 20))
+                    .foregroundColor(.black)
+                Spacer()
+                Button(action: {
+                    roomToDelete = room
+                    showingDeleteAlert = true
+                }) {
+                    Text("退会")
+                        .font(.system(size: 20))
+                        .foregroundColor(.black)
+                }
+                .frame(width: 100, height: 44)
+                .transition(.move(edge: .trailing))
+            }
+            .frame(maxWidth:.infinity,maxHeight:60)
+            .background(Color("btnColor"))
             // 部屋に含まれるユーザーの一覧を表示
             UserListView(viewModel: viewModel, userIds: room.userIDs)
         }
+        .alert(isPresented: $showingDeleteAlert) {
+           Alert(
+               title: Text("退会"),
+               message: Text("\(roomToDelete?.name ?? "")を退会しますか？"),
+               primaryButton: .destructive(Text("退会")) {
+                   if let room = roomToDelete {
+                       viewModel.deleteRoom(withID: room.name)
+                       self.presentationMode.wrappedValue.dismiss()
+                   }
+               },
+               secondaryButton: .cancel(Text("キャンセル"))
+           )
+       }
+        .navigationBarBackButtonHidden(true)
     }
 }
 

@@ -9,20 +9,29 @@ import SwiftUI
 
 struct ContentView: View {
     static let samplePaymentDates: [Date] = [Date()]
+    @State private var selectedRoom: Room?
 
     var body: some View {
         VStack {
             TabView {
                 ZStack {
-                    RoomListView()
+                    RoomListView(selectRoom: { room in
+                         self.selectedRoom = room
+                     })
                 }
                 .tabItem {
-                    Image(systemName: "house")
+                    Image(systemName: "person.3")
                         .padding()
-                    Text("ホーム")
+                    Text("グループ")
                         .padding()
                 }
-                
+                 if let selectedRoom = selectedRoom {
+                     RoomView(room: selectedRoom, viewModel: UserViewModel())
+                         .tabItem {
+                             Image(systemName: "house") // 任意のアイコン
+                             Text("選択された部屋")
+                         }
+                 }
 //                ZStack {
 ////                    UserListView()
 //                }

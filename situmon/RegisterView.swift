@@ -47,6 +47,8 @@ class FirebaseService {
 
 struct NameInputView: View {
     @Binding var userName: String
+    @ObservedObject var viewModel: UserViewModel
+    @State private var showAlert = false
     
     var body: some View {
         VStack {
@@ -68,7 +70,18 @@ struct NameInputView: View {
                         if newValue.count > 20 {
                             userName = String(newValue.prefix(20))
                         }
+//                        viewModel.searchUserByName(newValue)
+//                        if viewModel.isUserNameTaken {
+//                            showAlert = true
+//                        }
                     }
+//                    .alert(isPresented: $showAlert) {
+//                        Alert(
+//                            title: Text("エラー"),
+//                            message: Text("ユーザー名が既に使われています"),
+//                            dismissButton: .default(Text("OK"))
+//                        )
+//                    }
                     .font(.system(size: 35))
                     .padding(.trailing, userName.isEmpty ? 0 : 40)
                 
@@ -129,31 +142,86 @@ struct IconSelectionView: View {
 
 struct NameInputPage: View {
     @Binding var userName: String
-    
+    @ObservedObject var viewModel: UserViewModel
+    @State private var showDuplicateNameAlert = false
+    @State private var navigateToNextPage = false // ナビゲーション制御用のState
+
     var body: some View {
         VStack {
-            NameInputView(userName: $userName)
-            
-            NavigationLink(destination: IconSelectionPage(userName: $userName)) {
+            NameInputView(userName: $userName, viewModel: viewModel)
+
+            Button(action: {
+                print("次へ")
+                viewModel.searchUserByName(userName)
+                checkUserNameAndNavigate()
+            }) {
                 ZStack {
                     // ボタンの背景
                     RoundedRectangle(cornerRadius: 25)
                         .fill(Color.white)
                         .frame(width: 140, height: 70)
-                        .shadow(radius: 3) // ここで影をつけます
+                        .shadow(radius: 3)
                     Text("次へ")
+                        .font(.system(size:26))
+                        .foregroundColor(Color.gray)
                 }
-                    .font(.system(size:26))
-                    .foregroundColor(Color.gray)
-                        .disabled(userName.isEmpty)
-                        .background(RoundedRectangle(cornerRadius: 25)
-                            .fill(userName.isEmpty ? Color.gray : Color.white))
-                        .opacity(userName.isEmpty ? 0.5 : 1.0)
             }
             .disabled(userName.isEmpty)
+            .background(RoundedRectangle(cornerRadius: 25)
+                .fill(userName.isEmpty ? Color.gray : Color.white))
+            .opacity(userName.isEmpty ? 0.5 : 1.0)
+            .alert(isPresented: $showDuplicateNameAlert) {
+                Alert(
+                    title: Text("エラー"),
+                    message: Text("ユーザー名が既に使われています"),
+                    dismissButton: .default(Text("OK"))
+                )
+            }
+            
+//            Button(action: checkUserNameAndNavigate) {
+//                ZStack {
+//                    // ボタンの背景
+//                    RoundedRectangle(cornerRadius: 25)
+//                        .fill(Color.white)
+//                        .frame(width: 140, height: 70)
+//                        .shadow(radius: 3)
+//                    Text("次へ")
+//                        .font(.system(size:26))
+//                        .foregroundColor(Color.gray)
+//                }
+//            }
+//            .disabled(userName.isEmpty)
+//            .background(RoundedRectangle(cornerRadius: 25)
+//                .fill(userName.isEmpty ? Color.gray : Color.white))
+//            .opacity(userName.isEmpty ? 0.5 : 1.0)
+//            .alert(isPresented: $showDuplicateNameAlert) {
+//                Alert(
+//                    title: Text("エラー"),
+//                    message: Text("ユーザー名が既に使われています"),
+//                    dismissButton: .default(Text("OK"))
+//                )
+//            }
+
+            // 隠しNavigationLink
+            NavigationLink(destination: IconSelectionPage(userName: $userName), isActive: $navigateToNextPage) {
+                EmptyView()
+            }
+        }
+    }
+
+    private func checkUserNameAndNavigate() {
+        print("checkUserNameAndNavigate")
+        if viewModel.isUserNameTaken {
+            print("test1")
+            showDuplicateNameAlert = true
+        } else {
+            print("test2")
+            navigateToNextPage = true // 重複していなければナビゲーション実行
         }
     }
 }
+
+
 
 struct IconSelectionPage: View {
     @Binding var userName: String
@@ -161,6 +229,7 @@ struct IconSelectionPage: View {
     private let icons = ["user1", "user2", "user3", "user4", "user5","user6", "user7", "user8", "user9", "user10"]
     private let firebaseService = FirebaseService()
     @Environment(\.presentationMode) var presentationMode
+    @State private var navigateToContentView: Bool = false
     
     var body: some View {
             VStack {
@@ -172,6 +241,8 @@ struct IconSelectionPage: View {
                     // FirebaseからのユーザーIDを使用してユーザーデータを保存
                     if let userId = firebaseService.currentUserId() {
                         let user = User(id: userId, name: userName, icon: icon, status: .available, rooms: [:])
+                        print("user")
+                        print(user)
                         firebaseService.registerUser(user: user) { error in
                             if let error = error {
                                 print("Error registering user: \(error.localizedDescription)")
@@ -182,6 +253,7 @@ struct IconSelectionPage: View {
                     } else {
                         print("No user is currently logged in.")
                     }
+                    self.navigateToContentView = true
             }) {
                 ZStack {
                 // ボタンの背景
@@ -207,21 +279,30 @@ struct IconSelectionPage: View {
             Text("戻る")
                 .foregroundColor(.black)
         })
+        .background(
+            NavigationLink("", destination: ContentView().navigationBarBackButtonHidden(true), isActive: $navigateToContentView)
+                .hidden() // NavigationLinkを非表示にする
+        )
     }
 }
 
 struct RegisterView: View {
     @State private var userName: String = ""
+    @ObservedObject var viewModel: UserViewModel
     
     var body: some View {
         NavigationView {
-            NameInputPage(userName: $userName)
+            NameInputPage(userName: $userName, viewModel: viewModel)
         }
     }
 }
 
 struct RegisterView_Previews: PreviewProvider {
+    // UserViewModelの新しいインスタンスを生成
+    static var viewModel = UserViewModel()
+
     static var previews: some View {
-        RegisterView()
+        // 生成したviewModelインスタンスをRegisterViewに渡す
+        RegisterView(viewModel: viewModel)
     }
 }

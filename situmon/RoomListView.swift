@@ -107,18 +107,14 @@ struct UserSearchView: View {
                 inputUserName = ""
                 hasSearched = true
             }) {
-                ZStack {
-                    Text("ユーザー名を検索")
-                }
+                Text("ユーザー名を検索")
                 .padding(.vertical,10)
                 .padding(.horizontal,25)
                 .font(.headline)
                 .foregroundColor(.white)
                 .background(RoundedRectangle(cornerRadius: 25)
                 .fill(inputUserName.isEmpty ? Color.gray : Color("btnColor")))
-//                .fill(Color("btnColor")))
-//                        .opacity(goal.isEmpty ? 0.5 : 1.0)
-                .opacity(0.5)
+                .opacity(inputUserName.isEmpty ? 0.5 : 1.0)
                 .padding()
                 
             }
@@ -145,7 +141,7 @@ struct UserSearchView: View {
                                 .font(.system(size: 40))
                         }
                         VStack{
-                            Text("グループを選択してください")
+                            Text("追加先のグループを選択してください")
                                 .font(.system(size: 20))
                             Picker("", selection: $selectedRoom) {
                                 ForEach(getUserRooms(), id: \.self) { roomName in
@@ -154,8 +150,15 @@ struct UserSearchView: View {
                                 }
                             }
                             .onAppear {
+                                viewModel.authenticateUser { isAuthenticated in
+                                    if isAuthenticated {
+                                        // 認証成功時の処理
+                                        print("認証に成功しました")
+                                    } else {
+                                        // 認証失敗時の処理
+                                    }
+                                }
                                 let rooms = getUserRooms()
-                                print("rooms:\(rooms)")
                                 if !rooms.isEmpty {
                                     selectedRoom = rooms[0]
                                     print("selectedRoom:\(selectedRoom)")
@@ -176,7 +179,7 @@ struct UserSearchView: View {
                                 .font(.headline)
                                 .foregroundColor(.white)
                                 .background(RoundedRectangle(cornerRadius: 25)
-                                                .fill(Color("btnColor")))
+                                .fill(selectedRoom.isEmpty ? Color.gray : Color("btnColor")))
                                 .opacity(selectedRoom.isEmpty ? 0.5 : 1.0)
                                 .padding()
                         }
@@ -200,8 +203,9 @@ struct UserSearchView: View {
     }
     func getUserRooms() -> [String] {
         // 現在のユーザIDを確認
-        guard let currentUserId = viewModel.currentUserId else { return [] }
-
+        guard let currentUserId = viewModel.currentUserId else {  print("return"); return [] }
+        print("viewModel.activeRooms")
+        print(viewModel.activeRooms)
         // アクティブな部屋をフィルタリングして、部屋の名前の配列を返す
         return viewModel.activeRooms.filter { room in
             return room.userIDs.contains(currentUserId)
@@ -213,6 +217,7 @@ struct RoomCreationPopupView: View {
     @State private var newRoomName = ""
     @ObservedObject var viewModel = UserViewModel()
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @State private var showAlert = false
 
     var body: some View {
         VStack(spacing: 20){
@@ -266,9 +271,16 @@ struct RoomCreationPopupView: View {
                     }
                 }
             Button(action: {
-                viewModel.createRoom(withName: newRoomName)
-                newRoomName = ""
-                self.presentationMode.wrappedValue.dismiss()
+                viewModel.checkIfGroupNameExists(newRoomName) { exists in
+                    if exists {
+                        showAlert = true
+                    }else{
+                        viewModel.createRoom(withName: newRoomName)
+                        newRoomName = ""
+                        print("showAlert2")
+                        self.presentationMode.wrappedValue.dismiss()
+                    }
+                }
             }) {
                     // ボタンの背景
             Text("グループを作成")
@@ -280,12 +292,20 @@ struct RoomCreationPopupView: View {
                 .fill(newRoomName.isEmpty ? Color.gray : Color("btnColor")))
 //                .fill(Color("btnColor")))
 //                        .opacity(goal.isEmpty ? 0.5 : 1.0)
-                .opacity(0.5)
+                .opacity(newRoomName.isEmpty ? 0.5 : 1.0)
                 .padding()
+            }
+            .alert(isPresented: $showAlert) {
+                Alert(
+                    title: Text("エラー"),
+                    message: Text("グループ名が既に使われています"),
+                    dismissButton: .default(Text("OK"))
+                )
             }
             
             Spacer()
             }
+
             .padding()
             
 //        }
@@ -301,90 +321,127 @@ struct RoomListView: View {
     @State private var newRoomName = ""
     @State private var selectedRoom: Room? = nil
     @State private var isLoading = true
-
+    @State private var showingDeleteAlert = false
+    @State private var roomToDelete: Room?
+    var selectRoom: (Room) -> Void
+    
     var body: some View {
-        NavigationView{
-        ZStack{
-            Color("Color")
-                    .edgesIgnoringSafeArea(.all)
-//                ScrollView {
-//                    VStack(alignment: .leading) {
-                        List(viewModel.activeRooms) { room in                            VStack(alignment: .leading) {
-                                Text("Room Name: \(room.name)")
+        NavigationView {
+            ZStack {
+                Color("Color").edgesIgnoringSafeArea(.all)
+                VStack{
+                    HStack{
+                        Spacer()
+                        Text("グループ一覧")
+                            .font(.system(size: 20))
+                        Spacer()
+                    }
+                    .frame(maxWidth:.infinity,maxHeight:60)
+                    .background(Color("btnColor"))
+                    ScrollView {
+                        VStack(alignment: .leading) {
+                            ForEach(viewModel.sortedActiveRooms.indices, id: \.self) { index in
+                                let room = viewModel.activeRooms[index]
+                                ZStack(alignment: .trailing) {
+                                    NavigationLink(destination: RoomView(room: room, viewModel: viewModel)) {
+                                        HStack {
+                                            Text(room.name)
+                                                .frame(maxWidth: .infinity)
+                                                .padding()
+                                        }
+                                        .onTapGesture {
+                                            selectRoom(room)
+                                        }
+                                        .frame(width: .infinity)
+                                        .background(Color.white)
+                                        .cornerRadius(10)
+                                        .shadow(radius: 3)
+                                    }
+                                    .padding()
+                                    .padding(.horizontal, 30)
+                                }
                             }
-//                        }
-//                    }
-                }
-                    .padding()
+                            .padding(.top)
+                        }
+                    }
                     .onAppear {
                         viewModel.authenticateUser { isAuthenticated in
                             if isAuthenticated {
                                 // 認証成功時の処理
+                                print("認証に成功しました")
                             } else {
                                 // 認証失敗時の処理
                             }
                         }
                     }
-                    // 引数の値が更新されるたびに内部が実行される
                     .onReceive(viewModel.$activeRooms) { activeRooms in
                         print("activeRooms updated:", activeRooms)
                     }
-
                 }
-        
-
-            }
-            .overlay(
-                ZStack {
-                    Spacer()
-                    HStack {
+                //               .navigationTitle("Rooms")
+                .overlay(
+                    ZStack {
                         Spacer()
-                        VStack{
+                        HStack {
                             Spacer()
-                            HStack {
+                            VStack{
                                 Spacer()
-                                Button(action: {
-                                    self.isShowingUserSearchView = true
-                                }, label: {
-                                    Image(systemName: "magnifyingglass")
-                                        .foregroundColor(.gray)
-                                        .font(.system(size: 24))
-                                }).frame(width: 60, height: 60)
-                                    .background(Color("plusRoom"))
-                                    .cornerRadius(30.0)
-                                    .shadow(radius: 5)
-                                    .fullScreenCover(isPresented: $isShowingUserSearchView, content: {
-                                        UserSearchView()
-                                    })
-                                    .padding()
-                                Button(action: {
-                                    self.isShowingRoomCreationPopup = true
-                                }, label: {
-                                    Image(systemName: "plus")
-                                        .foregroundColor(.gray)
-                                        .font(.system(size: 24))
-                                }).frame(width: 60, height: 60)
-                                    .background(Color("plusUser"))
-                                    .cornerRadius(30.0)
-                                    .shadow(radius: 5)
-                                    .fullScreenCover(isPresented: $isShowingRoomCreationPopup, content: {
-                                        RoomCreationPopupView()
-                                    })
-                                    .padding()
-                                    .padding(.trailing)
+                                HStack {
+                                    Spacer()
+                                    Button(action: {
+                                        self.isShowingUserSearchView = true
+                                    }, label: {
+                                        Image(systemName: "magnifyingglass")
+                                            .foregroundColor(.gray)
+                                            .font(.system(size: 24))
+                                    }).frame(width: 60, height: 60)
+                                        .background(Color("plusRoom"))
+                                        .cornerRadius(30.0)
+                                        .shadow(radius: 5)
+                                        .fullScreenCover(isPresented: $isShowingUserSearchView, content: {
+                                            UserSearchView()
+                                        })
+                                        .padding()
+                                    Button(action: {
+                                        self.isShowingRoomCreationPopup = true
+                                    }, label: {
+                                        Image(systemName: "plus")
+                                            .foregroundColor(.gray)
+                                            .font(.system(size: 24))
+                                    }).frame(width: 60, height: 60)
+                                        .background(Color("plusUser"))
+                                        .cornerRadius(30.0)
+                                        .shadow(radius: 5)
+                                        .fullScreenCover(isPresented: $isShowingRoomCreationPopup, content: {
+                                            RoomCreationPopupView()
+                                        })
+                                        .padding()
+                                        .padding(.trailing)
+                                }
                             }
                         }
                     }
-                }
-            )
+                )
+            }
         }
     }
-
+}
 
 
 struct roomListView_Previews: PreviewProvider {
+    
     static var previews: some View {
-        RoomListView()
+        let user1 = User(id: "1", name: "ユーザー1", icon: "user1", status: .available, rooms: ["1": true])
+        let user2 = User(id: "2", name: "ユーザー2", icon: "user2", status: .busy, rooms: ["1": true])
+        
+        // ユーザーの配列を作成
+        let users = [user1, user2]
+        
+        // Roomのインスタンスを作成
+        let room = Room(id: "", name: "部屋1", userIDs: users.map { $0.id })
+        RoomListView(selectRoom: { room in
+//            self.selectedRoom = room
+        })
 //        UserSearchView()
 //        RoomCreationPopupView()
     }
