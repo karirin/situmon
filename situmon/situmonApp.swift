@@ -16,16 +16,21 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 @main
 struct situmonApp: App {
     @StateObject var viewModel = UserViewModel()
+    @ObservedObject var authManager: AuthManager
+    @State private var selectedRoom: Room?
     
     init() {
         FirebaseApp.configure()
+        authManager = AuthManager.shared
     }
 
     var body: some Scene {
         WindowGroup {
-//            UserListView(userIds: userIds)
-//            RegisterView(viewModel: viewModel)
-            ContentView()
+            if authManager.user == nil {
+                RegisterView(viewModel: viewModel)
+            } else {
+                RoomListView()
+            }
         }
     }
 }

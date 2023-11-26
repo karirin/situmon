@@ -8,18 +8,6 @@
 import SwiftUI
 import Firebase
 
-struct User: Identifiable {
-    var id: String
-    var name: String
-    var icon: String
-    var status: UserStatus
-    var rooms: [String: Bool]
-    
-    func activeRoomIDs() -> [String] {
-        return rooms.filter { $0.value }.map { $0.key }
-    }
-}
-
 class FirebaseService {
     
     private var databaseRef: DatabaseReference {
@@ -35,14 +23,14 @@ class FirebaseService {
         let userDict: [String: Any] = [
             "name": user.name,
             "icon": user.icon,
-            "status": "質問して大丈夫です",
+            "tutorialNum": user.tutorialNum,
             "rooms": user.rooms ?? [:]  // ここで空の辞書を設定
         ]
-        print("usersRef b:\(usersRef)")
+//        print("usersRef b:\(usersRef)")
         usersRef.setValue(userDict) { error, _ in
             completion(error)
         }
-        print("usersRef a:\(usersRef)")
+//        print("usersRef a:\(usersRef)")
     }
 
 }
@@ -87,16 +75,16 @@ struct NameInputView: View {
                     .font(.system(size: 35))
                     .padding(.trailing, userName.isEmpty ? 0 : 40)
                 
-                if !userName.isEmpty {
-                    Button(action: {
-                        self.userName = ""
-                    }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.gray)
-                    }
-                    .font(.system(size: 30))
-                    .padding(.trailing, 5)
-                }
+//                if !userName.isEmpty {
+//                    Button(action: {
+//                        self.userName = ""
+//                    }) {
+//                        Image(systemName: "xmark.circle.fill")
+//                            .foregroundColor(.gray)
+//                    }
+//                    .font(.system(size: 30))
+//                    .padding(.trailing, 5)
+//                }
             }
             .padding()
         }
@@ -108,7 +96,7 @@ struct IconSelectionView: View {
     let icons: [String]
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack {
             HStack {
                 Text("アイコンを選択してください")
                     .font(.system(size: 28))
@@ -179,30 +167,6 @@ struct NameInputPage: View {
                     dismissButton: .default(Text("OK"))
                 )
             }
-            
-//            Button(action: checkUserNameAndNavigate) {
-//                ZStack {
-//                    // ボタンの背景
-//                    RoundedRectangle(cornerRadius: 25)
-//                        .fill(Color.white)
-//                        .frame(width: 140, height: 70)
-//                        .shadow(radius: 3)
-//                    Text("次へ")
-//                        .font(.system(size:26))
-//                        .foregroundColor(Color.gray)
-//                }
-//            }
-//            .disabled(userName.isEmpty)
-//            .background(RoundedRectangle(cornerRadius: 25)
-//                .fill(userName.isEmpty ? Color.gray : Color.white))
-//            .opacity(userName.isEmpty ? 0.5 : 1.0)
-//            .alert(isPresented: $showDuplicateNameAlert) {
-//                Alert(
-//                    title: Text("エラー"),
-//                    message: Text("ユーザー名が既に使われています"),
-//                    dismissButton: .default(Text("OK"))
-//                )
-//            }
 
             // 隠しNavigationLink
             NavigationLink(destination: IconSelectionPage(userName: $userName), isActive: $navigateToNextPage) {
@@ -243,9 +207,7 @@ struct IconSelectionPage: View {
                     
                     // FirebaseからのユーザーIDを使用してユーザーデータを保存
                     if let userId = firebaseService.currentUserId() {
-                        let user = User(id: userId, name: userName, icon: icon, status: .available, rooms: [:])
-                        print("user")
-                        print(user)
+                        let user = User(id: userId, name: userName, icon: icon, rooms: [:], tutorialNum: 1)
                         firebaseService.registerUser(user: user) { error in
                             if let error = error {
                                 print("Error registering user: \(error.localizedDescription)")
@@ -283,11 +245,10 @@ struct IconSelectionPage: View {
                     .foregroundColor(.black)
             })
             .background(
-                NavigationLink("", destination: ContentView().navigationBarBackButtonHidden(true), isActive: $navigateToContentView)
+                NavigationLink("", destination: RoomListView().navigationBarBackButtonHidden(true), isActive: $navigateToContentView)
                     .hidden() // NavigationLinkを非表示にする
             )
         }
-        .navigationViewStyle(StackNavigationViewStyle())
         .navigationBarBackButtonHidden(true)
     }
 }

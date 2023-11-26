@@ -16,9 +16,7 @@ struct ContentView: View {
         VStack {
             TabView {
                 ZStack {
-                    RoomListView(selectRoom: { room in
-                         self.selectedRoom = room
-                     })
+                    RoomListView()
                 }
                 .tabItem {
                     Image(systemName: "person.3")
@@ -27,7 +25,7 @@ struct ContentView: View {
                         .padding()
                 }
                  if let selectedRoom = selectedRoom {
-                     RoomView(room: selectedRoom, viewModel: UserViewModel())
+                     TopRoomView(room: selectedRoom, viewModel: UserViewModel())
                          .tabItem {
                              Image(systemName: "house") // 任意のアイコン
                              Text("選択された部屋")
@@ -62,7 +60,6 @@ struct ContentView: View {
                     self.viewModel.rooms = rooms ?? []
                     if let firstRoom = rooms?.first {
                         self.selectedRoom = firstRoom
-                        print("最初の部屋: \(firstRoom)")
                     }
                 }
             } else {
@@ -71,9 +68,6 @@ struct ContentView: View {
             }
         }
     }
-
-
-
 }
 
 struct ContentView_Previews: PreviewProvider {

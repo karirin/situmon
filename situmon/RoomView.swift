@@ -12,11 +12,15 @@ struct Room: Identifiable {
     var id: String
     var name: String
     var members: [String: Bool]
-    var userIDs: [String]
+    var statuses: [String: String]
+    var userStatuses: [String: UserStatus]
     var isSwiped: Bool = false
     var isActive: Bool = true
+    
+    func statusKey(forLabel label: String) -> String? {
+        return statuses.first(where: { $0.value == label })?.key
+    }
 }
-
 
 struct RoomView: View {
     var room: Room
@@ -26,69 +30,79 @@ struct RoomView: View {
     @State private var roomToDelete: Room?
 
     var body: some View {
-        VStack {
-            HStack{
-                Button(action: {
-                    self.presentationMode.wrappedValue.dismiss()
-                }) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(.black)
-                    Text("戻る")
-                        .foregroundColor(.black)
-                }
-                .padding(.leading)
-                Spacer()
-                Text(room.name)
-                    .font(.system(size: 20))
-                    .foregroundColor(.black)
-                Spacer()
-                Button(action: {
-                    roomToDelete = room
-                    showingDeleteAlert = true
-                }) {
-                    Text("退会")
+        ZStack{
+            
+            VStack(spacing: 0) {
+                HStack{
+                    Button(action: {
+                        self.presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(.black)
+                        Text("戻る")
+                            .foregroundColor(.black)
+                    }
+                    .padding(.leading)
+                    Spacer()
+                    Text(room.name)
                         .font(.system(size: 20))
                         .foregroundColor(.black)
+                    Spacer()
+                    Button(action: {
+                        roomToDelete = room
+                        showingDeleteAlert = true
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(.black)
+                            .opacity(0)
+                        Text("退会")
+                            .font(.system(size: 20))
+                            .foregroundColor(.black)
+                    }
+                    .padding(.trailing)
+//                    .transition(.move(edge: .trailing))
                 }
-                .frame(width: 100, height: 44)
-                .transition(.move(edge: .trailing))
+                .frame(maxWidth:.infinity,maxHeight:60)
+                .background(Color("btnColor"))
+                
+                // 部屋に含まれるユーザーの一覧を表示
+                UserListView(viewModel: viewModel, members: room.members, room: room)
             }
-            .frame(maxWidth:.infinity,maxHeight:60)
-            .background(Color("btnColor"))
-            // 部屋に含まれるユーザーの一覧を表示
-            UserListView(viewModel: viewModel, userIds: room.userIDs)
+            .onAppear{
+                print("room:\(room)")
+            }
+            .alert(isPresented: $showingDeleteAlert) {
+                Alert(
+                    title: Text("退会"),
+                    message: Text("\(roomToDelete?.name ?? "")を退会しますか？"),
+                    primaryButton: .destructive(Text("退会")) {
+                        if let room = roomToDelete {
+                            viewModel.deleteRoom(withID: room.name)
+                            self.presentationMode.wrappedValue.dismiss()
+                        }
+                    },
+                    secondaryButton: .cancel(Text("キャンセル"))
+                )
+            }
+            .navigationBarBackButtonHidden(true)
         }
-        .onAppear{
-            print("roomName:\(room.name)")
-        }
-        .alert(isPresented: $showingDeleteAlert) {
-           Alert(
-               title: Text("退会"),
-               message: Text("\(roomToDelete?.name ?? "")を退会しますか？"),
-               primaryButton: .destructive(Text("退会")) {
-                   if let room = roomToDelete {
-                       viewModel.deleteRoom(withID: room.name)
-                       self.presentationMode.wrappedValue.dismiss()
-                   }
-               },
-               secondaryButton: .cancel(Text("キャンセル"))
-           )
-       }
-        .navigationBarBackButtonHidden(true)
     }
 }
 
 struct RoomView_Previews: PreviewProvider {
     static var previews: some View {
         // Userのインスタンスを作成
-        let user1 = User(id: "1", name: "ユーザー1", icon: "user1", status: .available, rooms: ["1": true])
-        let user2 = User(id: "2", name: "ユーザー2", icon: "user2", status: .busy, rooms: ["1": true])
+        let user1 = User(id: "1", name: "ユーザー1", icon: "user1", rooms: ["1": true], tutorialNum: 1)
+        let user2 = User(id: "2", name: "ユーザー2", icon: "user2", rooms: ["1": true], tutorialNum: 1)
         
         // ユーザーの配列を作成
         let users = [user1, user2]
         
         // Roomのインスタンスを作成
-        let room = Room(id: "", name: "部屋1", members: ["2" :true], userIDs: users.map { $0.id })
+        let userStatuses = ["1": UserStatus.available, "2": UserStatus.busy]
+
+        // Roomのインスタンスを作成
+        let room = Room(id: "", name: "部屋1", members: ["1": true, "2": true], statuses: ["status_0":"あ"], userStatuses: userStatuses)
         
         let viewModel = UserViewModel()
         viewModel.users = users

@@ -16,6 +16,7 @@ class UserViewModel: ObservableObject {
     @Published var activeRooms: [Room] = []
     @Published var isUserNameTaken: Bool = false
     @Published var existingGroups: [String] = []
+    @Published var isLoading: Bool = false
     
     var sortedActiveRooms: [Room] {
         activeRooms.sorted { $0.name < $1.name }
@@ -30,6 +31,7 @@ class UserViewModel: ObservableObject {
     }
 
     init() {
+        isLoading = true
         ref = Database.database().reference(withPath: "users")
 //        authenticateUser()
         fetchData { [weak self] success in
@@ -44,33 +46,12 @@ class UserViewModel: ObservableObject {
          if let currentUserId = currentUserId {
              fetchUserData(userId: currentUserId) { user in
                  self.user = user
+//                 print("useraaaa:\(self.user)")
 //                 self.updateActiveRooms() // userがセットされた後に呼び出す
              }
          }
-//        fetchUserRooms { rooms in
-//            if let rooms = rooms {
-//                // rooms が取得できた時の処理
-//                print("Rooms: \(rooms)")
-//            } else {
-//                // rooms の取得に失敗した時の処理
-//                print("Rooms の取得に失敗しました")
-//            }
-//        }
     }
     
-//    func fetchRooms() {
-//        let ref = Database.database().reference(withPath: "rooms")
-//        ref.observe(.value, with: { snapshot in
-//            var newRooms: [Room] = []
-//            for child in snapshot.children {
-//                if let snapshot = child as? DataSnapshot,
-//                   let room = Room(id: UUID().uuidString, name: roomName, userIDs: userIDs)
-//            }
-//            DispatchQueue.main.async {
-//                self.activeRooms = newRooms
-//            }
-//        })
-//    }
     
     func loadData() {
         authenticateUser { [weak self] isAuthenticated in
@@ -133,11 +114,10 @@ class UserViewModel: ObservableObject {
                 if let childSnapshot = child as? DataSnapshot,
                    let value = childSnapshot.value as? [String: Any],
                    let name = value["name"] as? String,
-                   let icon = value["icon"] as? String,
-                   let status = value["status"] as? String,
-                   let userStatus = UserStatus(rawValue: status) {
+                   let tutorialNum = value["tutorialNum"] as? Int,
+                   let icon = value["icon"] as? String {
                     
-                    let user = User(id: childSnapshot.key, name: name, icon: icon, status: userStatus, rooms: [:]) // roomsはここではセットしない
+                    let user = User(id: childSnapshot.key, name: name, icon: icon, rooms: [:], tutorialNum: tutorialNum) // roomsはここではセットしない
                     newUsers.append(user)
                 }
             }
@@ -150,72 +130,43 @@ class UserViewModel: ObservableObject {
             completion(false)
         }
     }
+    
+    func updateTutorialNum(userId: String, tutorialNum: Int, completion: @escaping (Bool) -> Void) {
+        let userRef = Database.database().reference().child("users").child(userId)
+        let updates = ["tutorialNum": tutorialNum]
+        userRef.updateChildValues(updates) { (error, _) in
+            if let error = error {
+                print("Error updating tutorialNum: \(error)")
+                completion(false)
+            } else {
+                completion(true)
+            }
+        }
+    }
 
     func fetchRoomDetails(roomName: String, completion: @escaping (Room?) -> Void) {
-        let roomsRef = Database.database().reference(withPath: "rooms/\(roomName)/members")
-        roomsRef.observeSingleEvent(of: .value, with: { snapshot in
-            guard let members = snapshot.value as? [String: Bool] else {
+        let roomRef = Database.database().reference(withPath: "rooms/\(roomName)")
+        roomRef.observeSingleEvent(of: .value, with: { snapshot in
+            guard let roomDict = snapshot.value as? [String: Any],
+                  let members = roomDict["members"] as? [String: Bool],
+                  let StatusStrings = roomDict["statuses"] as? [String: String],
+                  let userStatusStrings = roomDict["Userstatus"] as? [String: String] else {
+                print("fetchRoomDetails flase")
                 completion(nil)
                 return
             }
+
             let userIDs = Array(members.keys)
-            let room = Room(id: UUID().uuidString, name: roomName, members: members, userIDs: userIDs)
+            let userStatuses = userStatusStrings.compactMapValues { UserStatus(rawValue: $0) } // StringからUserStatusへ変換
+
+            let room = Room(id: UUID().uuidString, name: roomName, members: members, statuses: StatusStrings, userStatuses: userStatuses)
+//            print("fetchRoomDetails room:\(room)")
             completion(room)
         })
     }
-
-//    func fetchUserRooms(completion: @escaping ([Room]?) -> Void) {
-//        guard let userId = self.currentUserId else {
-//            print("User is not logged in")
-//            completion(nil)
-//            return
-//        }
-//
-////        print("Fetching rooms for user ID: \(userId)")
-//        
-//        ref.child(userId).observeSingleEvent(of: .value, with: { [weak self] snapshot in
-////            print("Fetched user data: \(snapshot.value)")
-//            
-//            // デバッグ: ユーザーのデータ全体をログに出力
-////            print("User data for debugging: \(snapshot)")
-//
-//            guard let value = snapshot.value as? [String: Any] else {
-//                print("Could not cast snapshot value to [String: Any]")
-//                completion(nil)
-//                return
-//            }
-//
-//            // デバッグ: roomsのデータをログに出力
-////            print("Rooms data for debugging: \(value["rooms"])")
-//
-//            guard let roomsDict = value["rooms"] as? [String: Bool] else {
-//                print("Could not fetch user's rooms")
-//                completion(nil)
-//                return
-//            }
-////            print("roomsDict.keys:\(roomsDict.keys)")
-//            let roomNames = Array(roomsDict.keys)
-//            
-//            var rooms: [Room] = []
-//            let group = DispatchGroup()
-//            
-//            for roomName in roomNames {
-//                group.enter()
-//                self?.fetchRoomDetails(roomName: roomName) { room in
-//                    if let room = room {
-//                        rooms.append(room)
-//                    }
-//                    group.leave()
-//                }
-//            }
-//            
-//            group.notify(queue: .main) {
-//                completion(rooms)
-//            }
-//        })
-//    }
     
     func fetchUserRooms(completion: @escaping ([Room]?) -> Void) {
+        print("fetchUserRooms")
         guard let userId = self.currentUserId else {
             print("User is not logged in")
             completion(nil)
@@ -224,15 +175,12 @@ class UserViewModel: ObservableObject {
 
         let usersRef = Database.database().reference(withPath: "users")
         usersRef.child(userId).child("rooms").observeSingleEvent(of: .value, with: { [weak self] snapshot in
-//            print("snapshot:\(snapshot)")
             guard let roomsStatusDict = snapshot.value as? [String: Bool] else {
                 print("Could not fetch user's rooms status")
                 completion(nil)
                 return
             }
-
             let activeRoomNames = roomsStatusDict.filter { $0.value == true }.map { $0.key }
-
             var rooms: [Room] = []
             let group = DispatchGroup()
 
@@ -241,6 +189,7 @@ class UserViewModel: ObservableObject {
                 self?.fetchRoomDetails(roomName: roomName) { room in
                     if let room = room {
                         rooms.append(room)
+//                        print("rooms:\(rooms)")
                     }
                     group.leave()
                 }
@@ -251,15 +200,6 @@ class UserViewModel: ObservableObject {
             }
         })
     }
-
-
-
-//    func updateActiveRooms() {
-//        fetchUserRooms { rooms in
-//            self.activeRooms = rooms ?? []
-//        }
-//    }
-
     
     func fetchUserData(userId: String, completion: @escaping (User?) -> Void) {
         ref.child(userId).observe(.value, with: { snapshot in
@@ -267,6 +207,7 @@ class UserViewModel: ObservableObject {
                   let name = value["name"] as? String,
                   let icon = value["icon"] as? String,
                   let status = value["status"] as? String,
+                  let tutorialNum = value["tutorialNum"] as? Int,
                   let userStatus = UserStatus(rawValue: status) else {
                       print("Could not decode user data")
                       completion(nil)
@@ -276,7 +217,7 @@ class UserViewModel: ObservableObject {
             // Here, you should extract the rooms as a dictionary of [String: Bool]
             let rooms = value["rooms"] as? [String: Bool] ?? [:]
             
-            let user = User(id: snapshot.key, name: name, icon: icon, status: userStatus, rooms: rooms)
+            let user = User(id: snapshot.key, name: name, icon: icon, rooms: rooms, tutorialNum: tutorialNum)
             completion(user)
         }) { error in
             print(error.localizedDescription)
@@ -285,13 +226,9 @@ class UserViewModel: ObservableObject {
     }
 
     func searchUserByName(_ name: String) {
-//        print("Searching for user with name: \(name)")
-//        print("Current users: \(users)")
-//        print(users)
+        print("users:\(users)")
         searchedUsers = users.filter { $0.name == name }
         isUserNameTaken = users.contains { $0.name == name }
-//        print("Found users: \(searchedUsers)")
-//        print("isUserNameTaken:\(isUserNameTaken)")
     }
 
     func checkIfGroupNameExists(_ groupName: String, completion: @escaping (Bool) -> Void) {
@@ -337,66 +274,60 @@ class UserViewModel: ObservableObject {
         }
     }
 
-    func createRoom(withName name: String) {
+    func createRoom(withName name: String, statuses: [String], userStatuses: [String]) {
         if self.currentUserId == nil {
-            print("createRoom0")
+            print("User is not logged in")
             authenticateUser { [weak self] isAuthenticated in
-                print("createRoom333")
                 if isAuthenticated {
-                    self?.proceedToCreateRoom(withName: name)
+                    self?.proceedToCreateRoom(withName: name, inputStatuses: statuses)
                 } else {
                     print("User authentication failed")
                 }
             }
         } else {
-            proceedToCreateRoom(withName: name)
+            proceedToCreateRoom(withName: name, inputStatuses: statuses)
         }
     }
 
-    func proceedToCreateRoom(withName name: String) {
-//        print("createRoom2")
+    func proceedToCreateRoom(withName name: String, inputStatuses: [String]) {
         guard let userId = self.currentUserId else {
-//            print("createRoom User is not logged in")
             return
         }
-//        print("createRoom1")
+
         let roomsRef = Database.database().reference(withPath: "rooms/\(name)")
         let userRoomsRef = Database.database().reference(withPath: "users/\(userId)/rooms")
-        
-        // 部屋を作成
-        roomsRef.setValue(["members": [userId: true]]) { [weak self] error, _ in
-            if let error = error {
-                print("Error creating room: \(error.localizedDescription)")
-            } else {
-                print("Room created successfully")
-                
-                // ユーザーの rooms フィールドを更新
-                userRoomsRef.updateChildValues([name: true]) { error, _ in
-                    if let error = error {
-                        print("Error updating user's rooms: \(error.localizedDescription)")
-                    } else {
-                        print("User's rooms updated successfully")
-                        
-                        // オプション: 必要に応じて他の処理をここに追加
-                    }
-                }
-            }
+
+        var statusesDict = [String: String]()
+        for (index, status) in inputStatuses.enumerated() {
+            let statusKey = "status_\(index)" // ユニークなキーを作成
+            statusesDict[statusKey] = status
         }
-    }
 
+        var userStatusesDict = [String: String]()
+        let firstStatus = inputStatuses.first ?? "" // 最初のステータスを取得、空の場合は空文字列を使用
+        userStatusesDict[userId] = firstStatus
 
+        let newRoomData = [
+            "members": [userId: true],
+            "statuses": statusesDict,
+            "Userstatus": userStatusesDict // 最初のステータスを設定
+        ] as [String : Any]
 
-    // 指定の部屋にユーザーを追加する機能
-    func addUserToRoom(_ user: User, to roomName: String) {
-//        print("test2")
-        let roomMembersRef = Database.database().reference(withPath: "rooms/\(roomName)/members/\(user.id)")
-//        print("test1")
-        roomMembersRef.setValue(true) { error, _ in
+        roomsRef.setValue(newRoomData) { error, _ in
             if let error = error {
-                print("Error adding user to room: \(error.localizedDescription)")
-            } else {
-                print("User added to room successfully")
-            }
+               print("Error creating room: \(error.localizedDescription)")
+           } else {
+               print("Room created successfully")
+
+               // ユーザーの rooms フィールドを更新
+               userRoomsRef.updateChildValues([name: true]) { error, _ in
+                   if let error = error {
+                       print("Error updating user's rooms: \(error.localizedDescription)")
+                   } else {
+                       print("User's rooms updated successfully")
+                   }
+               }
+           }
         }
     }
     
