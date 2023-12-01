@@ -14,10 +14,10 @@
             filePath = "situmon/RoomListView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "327"
-            endingLineNumber = "327"
-            landmarkName = "body"
-            landmarkType = "24">
+            startingLineNumber = "657"
+            endingLineNumber = "657"
+            landmarkName = "RoomCreationPopupView"
+            landmarkType = "14">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -30,8 +30,8 @@
             filePath = "situmon/RoomListView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "563"
-            endingLineNumber = "563"
+            startingLineNumber = "901"
+            endingLineNumber = "901"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>

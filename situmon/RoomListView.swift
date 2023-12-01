@@ -10,6 +10,7 @@ import Firebase
 
 struct UserSearchView: View {
     @State private var inputUserName = ""
+    @State private var inputTestUserName = "テストユーザー"
     @ObservedObject var viewModel = UserViewModel()
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @State private var selectedRoom: String = ""
@@ -67,7 +68,7 @@ struct UserSearchView: View {
                 alertMessage = "このユーザーはすでに\(roomName)に入っています"
             }
             showAlert = true
-            selectedRoom = "" // 部屋を追加した後は選択をクリア
+//            selectedRoom = "" // 部屋を追加した後は選択をクリア
         } else {
             // 部屋が見つからない場合のエラーメッセージ
             alertMessage = "\(roomName)は存在しません"
@@ -119,160 +120,321 @@ struct UserSearchView: View {
                         Spacer()
                     }
                     ScrollView{
-                        VStack{
-                            HStack {
-                                Text("ユーザー名を入力してください")
-                                    .font(.system(size: 24))
-                                    .foregroundColor(Color("fontGray"))
-                            }
-                            Text("グループに追加するユーザーを検索します")
-                                .font(.system(size: 18))
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal)
-                                .padding(.top, 5)
-                            ZStack(alignment: .trailing){
-                                TextField("ユーザー名", text: $inputUserName)
-                                    .frame(width:.infinity)
-                                    .onChange(of: inputUserName) { newValue in
-                                        if newValue.count > 20 {
-                                            inputUserName = String(newValue.prefix(20))
-                                        }
-                                    }
-                                    .font(.system(size: 35))
-                                    .background(GeometryReader { geometry in
-                                        Color.clear.preference(key: ViewPositionKey.self, value: [geometry.frame(in: .global)])
-                                    })
-                                    .padding(.trailing, inputUserName.isEmpty ? 0 : 40)
-                                if !inputUserName.isEmpty {
-                                    Button(action: {
-                                        self.inputUserName = ""
-                                    }) {
-                                        Image(systemName: "xmark.circle.fill")
-                                            .foregroundColor(.gray)
-                                    }
-                                    .font(.system(size: 30))
-                                    .padding(.trailing, 5)
+                        if showTestuser == false {
+                            VStack{
+                                HStack {
+                                    Text("ユーザー名を入力してください")
+                                        .font(.system(size: 24))
+                                        .foregroundColor(Color("fontGray"))
                                 }
-                            }
-                            .padding()
-                            
-                            Button(action: {
-                                viewModel.searchUserByName(inputUserName)
-                                inputUserName = ""
-                                hasSearched = true
-                                showTestuser = true
-//                                if self.tutorialNum == 77 {
-//                                    self.tutorialNum = 7 // タップでチュートリアルを終了
-//                                    print("currentUser?.id:\(currentUser?.id)")
-//                                    viewModel.authenticateUser { isAuthenticated in
-//                                        if isAuthenticated {
-//                                            viewModel.updateTutorialNum(userId: currentUser?.id ?? "", tutorialNum: 7) { success in
-//                                                // データベースのアップデートが成功したかどうかをハンドリング
-//                                            }
-//                                        }
-//                                    }
-//                                }
-                            }) {
-                                Text("ユーザー名を検索")
-                                    .padding(.vertical,10)
-                                    .padding(.horizontal,25)
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                    .background(RoundedRectangle(cornerRadius: 25)
-                                        .fill(inputUserName.isEmpty ? Color.gray : Color("btnColor")))
-                                    .opacity(inputUserName.isEmpty ? 0.5 : 1.0)
-                                    .padding()
-                                
-                            }
-                            .disabled(inputUserName.isEmpty)
-                            Spacer()
-                            if hasSearched && viewModel.searchedUsers.isEmpty {
-                                Text("ユーザーが見つかりませんでした")
-                                    .font(.system(size: 20))
-                                    .foregroundColor(.gray)
-                                    .padding(.top, 20)
-                            } else {
-                                ForEach(viewModel.searchedUsers) { user in
-                                    VStack {
-                                        if user.id == viewModel.currentUserId {
-                                            Text("こちらはあなたのユーザー名です")
-                                                .font(.system(size: 30))
+                                Text("グループに追加するユーザーを検索します")
+                                    .font(.system(size: 18))
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal)
+                                    .padding(.top, 5)
+                                ZStack(alignment: .trailing){
+                                    TextField("ユーザー名", text: $inputUserName)
+                                        .frame(width:.infinity)
+                                        .onChange(of: inputUserName) { newValue in
+                                            if newValue.count > 20 {
+                                                inputUserName = String(newValue.prefix(20))
+                                            }
+                                        }
+                                        .font(.system(size: 35))
+                                        .background(GeometryReader { geometry in
+                                            Color.clear.preference(key: ViewPositionKey.self, value: [geometry.frame(in: .global)])
+                                        })
+                                        .padding(.trailing, inputUserName.isEmpty ? 0 : 40)
+                                    if !inputUserName.isEmpty {
+                                        Button(action: {
+                                            self.inputUserName = ""
+                                        }) {
+                                            Image(systemName: "xmark.circle.fill")
                                                 .foregroundColor(.gray)
-                                        } else {
-                                            VStack{
-                                                Text("こちらの方でしょうか？")
+                                        }
+                                        .font(.system(size: 30))
+                                        .padding(.trailing, 5)
+                                    }
+                                }
+                                .padding()
+                                
+                                Button(action: {
+                                    viewModel.searchUserByName(inputUserName)
+                                    inputUserName = ""
+                                    hasSearched = true
+                                    if tutorialNum == 77 {
+                                        showTestuser = true
+                                    }
+                                    //                                if self.tutorialNum == 77 {
+                                    //                                    self.tutorialNum = 7 // タップでチュートリアルを終了
+                                    //                                    print("currentUser?.id:\(currentUser?.id)")
+                                    //                                    viewModel.authenticateUser { isAuthenticated in
+                                    //                                        if isAuthenticated {
+                                    //                                            viewModel.updateTutorialNum(userId: currentUser?.id ?? "", tutorialNum: 7) { success in
+                                    //                                                // データベースのアップデートが成功したかどうかをハンドリング
+                                    //                                            }
+                                    //                                        }
+                                    //                                    }
+                                    //                                }
+                                }) {
+                                    Text("ユーザー名を検索")
+                                        .padding(.vertical,10)
+                                        .padding(.horizontal,25)
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                        .background(RoundedRectangle(cornerRadius: 25)
+                                            .fill(inputUserName.isEmpty ? Color.gray : Color("btnColor")))
+                                        .opacity(inputUserName.isEmpty ? 0.5 : 1.0)
+                                        .padding()
+                                    
+                                }
+                                .disabled(inputUserName.isEmpty)
+                                Spacer()
+                                if hasSearched && viewModel.searchedUsers.isEmpty {
+                                    Text("ユーザーが見つかりませんでした")
+                                        .font(.system(size: 20))
+                                        .foregroundColor(.gray)
+                                        .padding(.top, 20)
+                                } else {
+                                    ForEach(viewModel.searchedUsers) { user in
+                                        VStack {
+                                            if user.id == viewModel.currentUserId {
+                                                Text("こちらはあなたのユーザー名です")
                                                     .font(.system(size: 30))
                                                     .foregroundColor(.gray)
-                                                HStack{
-                                                    Image(user.icon)
-                                                        .resizable()
-                                                        .scaledToFit()
-                                                        .frame(width: 80, height: 80)
-                                                        .clipShape(Circle())
-                                                        .padding(.trailing)
-                                                    Text(user.name)
-                                                        .font(.system(size: 40))
-                                                }
-                                            }
-                                            .background(GeometryReader { geometry in
-                                                Color.clear.preference(key: ViewPositionKey1.self, value: [geometry.frame(in: .global)])
-                                            })
-                                            VStack{
-                                                Text("追加先のグループを選択してください")
-                                                    .font(.system(size: 20))
-                                                Picker("", selection: $selectedRoom) {
-                                                    ForEach(getUserRooms(), id: \.self) { roomName in
-                                                        Text(roomName).tag(roomName)
+                                            } else {
+                                                VStack{
+                                                    Text("こちらの方でしょうか？")
+                                                        .font(.system(size: 30))
+                                                        .foregroundColor(.gray)
+                                                    HStack{
+                                                        Image(user.icon)
+                                                            .resizable()
+                                                            .scaledToFit()
+                                                            .frame(width: 80, height: 80)
+                                                            .clipShape(Circle())
+                                                            .padding(.trailing)
+                                                        Text(user.name)
                                                             .font(.system(size: 40))
                                                     }
                                                 }
-                                                .onAppear {
-                                                    viewModel.authenticateUser { isAuthenticated in
-                                                        if isAuthenticated {
-                                                            // 認証成功時の処理
-                                                            print("認証に成功しました")
-                                                            //                                                print(user)
-                                                        } else {
-                                                            // 認証失敗時の処理
+                                                .background(GeometryReader { geometry in
+                                                    Color.clear.preference(key: ViewPositionKey1.self, value: [geometry.frame(in: .global)])
+                                                })
+                                                VStack{
+                                                    Text("追加先のグループを選択してください")
+                                                        .font(.system(size: 20))
+                                                    Picker("", selection: $selectedRoom) {
+                                                        ForEach(getUserRooms(), id: \.self) { roomName in
+                                                            Text(roomName).tag(roomName)
+                                                                .font(.system(size: 40))
                                                         }
                                                     }
-                                                    let rooms = getUserRooms()
-                                                    if !rooms.isEmpty {
-                                                        selectedRoom = rooms[0]
-                                                        //                                            print("selectedRoom:\(selectedRoom)")
+                                                    .onAppear {
+                                                        viewModel.authenticateUser { isAuthenticated in
+                                                            if isAuthenticated {
+                                                                // 認証成功時の処理
+                                                                print("認証に成功しました")
+                                                                //                                                print(user)
+                                                            } else {
+                                                                // 認証失敗時の処理
+                                                            }
+                                                        }
+                                                        let rooms = getUserRooms()
+                                                        if !rooms.isEmpty {
+                                                            selectedRoom = rooms[0]
+                                                            //                                            print("selectedRoom:\(selectedRoom)")
+                                                        }
                                                     }
+                                                    .pickerStyle(MenuPickerStyle()) // メニュー形式のピッカーにする
+                                                    .accentColor(Color("fontGray"))
+                                                    .overlay(
+                                                        RoundedRectangle(cornerRadius: 100)
+                                                            .stroke(.black.opacity(3), lineWidth: 1)
+                                                    )
                                                 }
-                                                .pickerStyle(MenuPickerStyle()) // メニュー形式のピッカーにする
-                                                .accentColor(Color("fontGray"))
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .stroke(.black.opacity(3), lineWidth: 1)
-                                                )
-                                            }
-                                            .background(GeometryReader { geometry in
-                                                Color.clear.preference(key: ViewPositionKey2.self, value: [geometry.frame(in: .global)])
-                                            })
-                                            .padding()
-                                            Button(action: addUserToRoomAction) {
-                                                Text("ユーザーをグループに追加")
-                                                    .padding(.vertical, 10)
-                                                    .padding(.horizontal, 25)
-                                                    .font(.headline)
-                                                    .foregroundColor(.white)
-                                                    .background(RoundedRectangle(cornerRadius: 25)
-                                                        .fill(selectedRoom.isEmpty ? Color.gray : Color("btnColor")))
-                                                    .opacity(selectedRoom.isEmpty ? 0.5 : 1.0)
-                                                    .padding()
-                                            }
-                                            //                                                            .disabled(selectedRoom.isEmpty)
-                                            .alert(isPresented: $showAlert) {
-                                                Alert(title: Text(""), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+                                                .background(GeometryReader { geometry in
+                                                    Color.clear.preference(key: ViewPositionKey2.self, value: [geometry.frame(in: .global)])
+                                                })
+                                                .padding()
+                                                Button(action: addUserToRoomAction) {
+                                                    Text("ユーザーをグループに追加")
+                                                        .padding(.vertical, 10)
+                                                        .padding(.horizontal, 25)
+                                                        .font(.headline)
+                                                        .foregroundColor(.white)
+                                                        .background(RoundedRectangle(cornerRadius: 25)
+                                                            .fill(selectedRoom.isEmpty ? Color.gray : Color("btnColor")))
+                                                        .opacity(selectedRoom.isEmpty ? 0.5 : 1.0)
+                                                        .padding()
+                                                }
+                                                //                                                            .disabled(selectedRoom.isEmpty)
+                                                .alert(isPresented: $showAlert) {
+                                                    Alert(title: Text(""), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+                                                }
+                                                
                                             }
                                         }
+                                        .padding(.bottom, 10)
                                     }
-                                    .padding(.bottom, 10)
+                                }
+                            }
+                        } else {
+                            VStack{
+                                HStack {
+                                    Text("ユーザー名を入力してください")
+                                        .font(.system(size: 24))
+                                        .foregroundColor(Color("fontGray"))
+                                }
+                                Text("グループに追加するユーザーを検索します")
+                                    .font(.system(size: 18))
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal)
+                                    .padding(.top, 5)
+                                ZStack(alignment: .trailing){
+                                    TextField("ユーザー名", text: $inputTestUserName)
+                                        .frame(width:.infinity)
+                                        .onChange(of: inputTestUserName) { newValue in
+                                            if newValue.count > 20 {
+                                                inputTestUserName = String(newValue.prefix(20))
+                                            }
+                                        }
+                                        .font(.system(size: 35))
+                                        .background(GeometryReader { geometry in
+                                            Color.clear.preference(key: ViewPositionKey.self, value: [geometry.frame(in: .global)])
+                                        })
+                                        .padding(.trailing, inputTestUserName.isEmpty ? 0 : 40)
+                                    if !inputTestUserName.isEmpty {
+                                        Button(action: {
+                                            self.inputTestUserName = ""
+                                        }) {
+                                            Image(systemName: "xmark.circle.fill")
+                                                .foregroundColor(.gray)
+                                        }
+                                        .font(.system(size: 30))
+                                        .padding(.trailing, 5)
+                                    }
+                                }
+                                .padding()
+                                
+                                Button(action: {
+                                    viewModel.searchUserByName(inputTestUserName)
+                                    inputTestUserName = ""
+                                    hasSearched = true
+                                    if tutorialNum == 66 {
+                                        showTestuser = true
+                                    }
+                                    print("searchedUsers")
+                                    print(viewModel.searchedUsers)
+                                }) {
+                                    Text("ユーザー名を検索")
+                                        .padding(.vertical,10)
+                                        .padding(.horizontal,25)
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                        .background(RoundedRectangle(cornerRadius: 25)
+                                            .fill(inputTestUserName.isEmpty ? Color.gray : Color("btnColor")))
+                                        .opacity(inputTestUserName.isEmpty ? 0.5 : 1.0)
+                                        .padding()
+                                    
+                                }
+                                .disabled(inputTestUserName.isEmpty)
+                                Spacer()
+                                if hasSearched && viewModel.searchedUsers.isEmpty {
+                                    Text("ユーザーが見つかりませんでした")
+                                        .font(.system(size: 20))
+                                        .foregroundColor(.gray)
+                                        .padding(.top, 20)
+                                } else {
+                                    ForEach(viewModel.searchedUsers) { user in
+                                        VStack {
+                                            if user.id == viewModel.currentUserId {
+                                                Text("こちらはあなたのユーザー名です")
+                                                    .font(.system(size: 30))
+                                                    .foregroundColor(.gray)
+                                            } else {
+                                                VStack{
+                                                    Text("こちらの方でしょうか？")
+                                                        .font(.system(size: 30))
+                                                        .foregroundColor(.gray)
+                                                    HStack{
+                                                        Image(user.icon)
+                                                            .resizable()
+                                                            .scaledToFit()
+                                                            .frame(width: 80, height: 80)
+                                                            .clipShape(Circle())
+                                                            .padding(.trailing)
+                                                        Text(user.name)
+                                                            .font(.system(size: 40))
+                                                    }
+                                                }
+                                                .background(GeometryReader { geometry in
+                                                    Color.clear.preference(key: ViewPositionKey1.self, value: [geometry.frame(in: .global)])
+                                                })
+                                                VStack{
+                                                    Text("追加先のグループを選択してください")
+                                                        .font(.system(size: 20))
+                                                    Picker("", selection: $selectedRoom) {
+                                                        ForEach(getUserRooms(), id: \.self) { roomName in
+                                                            Text(roomName).tag(roomName)
+                                                                .font(.system(size: 40))
+                                                        }
+                                                    }
+                                                    .onAppear {
+                                                        viewModel.authenticateUser { isAuthenticated in
+                                                            if isAuthenticated {
+                                                                // 認証成功時の処理
+                                                                print("認証に成功しました")
+                                                                //                                                print(user)
+                                                            } else {
+                                                                // 認証失敗時の処理
+                                                            }
+                                                        }
+                                                        let rooms = getUserRooms()
+                                                        if !rooms.isEmpty {
+                                                            selectedRoom = rooms[0]
+                                                            //                                            print("selectedRoom:\(selectedRoom)")
+                                                        }
+                                                    }
+                                                    .pickerStyle(MenuPickerStyle()) // メニュー形式のピッカーにする
+                                                    .accentColor(Color("fontGray"))
+                                                    .overlay(
+                                                        RoundedRectangle(cornerRadius: 100)
+                                                            .stroke(.black.opacity(3), lineWidth: 1)
+                                                    )
+                                                }
+                                                .background(GeometryReader { geometry in
+                                                    Color.clear.preference(key: ViewPositionKey2.self, value: [geometry.frame(in: .global)])
+                                                })
+                                                .padding()
+                                                Button(action: addUserToRoomAction) {
+                                                    Text("ユーザーをグループに追加")
+                                                        .padding(.vertical, 10)
+                                                        .padding(.horizontal, 25)
+                                                        .font(.headline)
+                                                        .foregroundColor(.white)
+                                                        .background(RoundedRectangle(cornerRadius: 25)
+                                                            .fill(selectedRoom.isEmpty ? Color.gray : Color("btnColor")))
+                                                        .opacity(selectedRoom.isEmpty ? 0.5 : 1.0)
+                                                        .padding()
+                                                }
+                                                //                                                            .disabled(selectedRoom.isEmpty)
+                                                .alert(isPresented: $showAlert) {
+                                                    Alert(title: Text(""), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+                                                }
+                                                
+                                            }
+                                        }
+                                        .padding(.bottom, 10)
+                                    }
+                                    .onAppear{
+                                        let user1 = User(id: "qtfVZGkjcIP0YTIGGFZSp7g8CmB5", name: "テストユーザー", icon: "user2",rooms: [:], tutorialNum: 1)
+                                        viewModel.searchedUsers = [user1]
+                                    }
                                 }
                             }
                         }
@@ -283,14 +445,20 @@ struct UserSearchView: View {
                 }
             }
             .onAppear{
-                hasSearched = false
+
+                if showTestuser == false {
+                    print("|||||||||||||")
+                    hasSearched = false
+                }
                 viewModel.authenticateUser { isAuthenticated in
                     if isAuthenticated {
                         currentUser = viewModel.users.first(where: { $0.id == viewModel.currentUserId })
 //                        print(currentUser)
                         // 認証成功時の処理
                         print("認証に成功しました")
-                        self.tutorialNum = currentUser!.tutorialNum
+                        if currentUser!.tutorialNum == 5 || currentUser!.tutorialNum == 6{
+                            self.tutorialNum = currentUser!.tutorialNum
+                        }
                     } else {
                         // 認証失敗時の処理
                         print("認証失敗")
@@ -307,7 +475,7 @@ struct UserSearchView: View {
                 self.buttonRect3 = positions.first ?? .zero
             }
             Spacer()
-            if tutorialNum == 6 {
+            if tutorialNum == 5 {
                 GeometryReader { geometry in
                     Color.black.opacity(0.5)
                         .overlay(
@@ -347,7 +515,7 @@ struct UserSearchView: View {
                 }
                 .ignoresSafeArea()
                             }
-            if tutorialNum == 7 {
+            if tutorialNum == 6 {
                 GeometryReader { geometry in
                     Color.black.opacity(0.5)
                         .overlay(
@@ -364,7 +532,7 @@ struct UserSearchView: View {
                     Spacer()
                         .frame(height: buttonRect2.minY - bubbleHeight)
                     VStack(alignment: .trailing, spacing: .zero) {
-                        Text("「テストユーザー」が検索結果にヒットします。")
+                        Text("「テストユーザー」が検索結果にヒットします。\n先ほど登録したグループを選択して「テストユーザー」を追加します。")
                             .font(.system(size: 20.0))
                             .padding(.all, 10.0)
                             .background(Color.white)
@@ -387,80 +555,82 @@ struct UserSearchView: View {
                 }
                 .ignoresSafeArea()
                             }
-            if tutorialNum == 8 {
-                GeometryReader { geometry in
-                    Color.black.opacity(0.5)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                .frame(width: buttonRect3.width + 10, height: buttonRect3.height + 10)
-                                .position(x: buttonRect3.midX, y: buttonRect3.midY)
-                                .blendMode(.destinationOut)
-                        )
-                        .ignoresSafeArea()
-                        .compositingGroup()
-                        .background(.clear)
-                }
-                VStack {
-                    Spacer()
-                        .frame(height: buttonRect3.minY - bubbleHeight)
-                    VStack(alignment: .trailing, spacing: .zero) {
-                        Text("先ほど登録したグループを選択して「テストユーザー」を追加します。")
-                            .font(.system(size: 20.0))
-                            .padding(.all, 10.0)
-                            .background(Color.white)
-                            .cornerRadius(4.0)
-                            .padding(.horizontal, 3)
-                            .foregroundColor(Color("fontGray"))
-                        Image("下矢印")
-                            .resizable()
-                            .frame(width: 20, height: 20)
-                            .padding(.trailing, 45.0)
-                    }
-                    .background(GeometryReader { geometry in
-                        Path { _ in
-                            DispatchQueue.main.async {
-                                self.bubbleHeight = geometry.size.height + 20
-                            }
-                        }
-                    })
-                    Spacer()
-                }
-                .ignoresSafeArea()
-                            }
+//            if tutorialNum == 8 {
+//                GeometryReader { geometry in
+//                    Color.black.opacity(0.5)
+//                        .overlay(
+//                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+//                                .frame(width: buttonRect3.width + 10, height: buttonRect3.height + 10)
+//                                .position(x: buttonRect3.midX, y: buttonRect3.midY)
+//                                .blendMode(.destinationOut)
+//                        )
+//                        .ignoresSafeArea()
+//                        .compositingGroup()
+//                        .background(.clear)
+//                }
+//                VStack {
+//                    Spacer()
+//                        .frame(height: buttonRect3.minY - bubbleHeight)
+//                    VStack(alignment: .trailing, spacing: .zero) {
+//                        Text("「テストユーザー」が検索結果にヒットします。\n先ほど登録したグループを選択して「テストユーザー」を追加します。")
+//                            .font(.system(size: 20.0))
+//                            .padding(.all, 10.0)
+//                            .background(Color.white)
+//                            .cornerRadius(4.0)
+//                            .padding(.horizontal, 3)
+//                            .foregroundColor(Color("fontGray"))
+//                        Image("下矢印")
+//                            .resizable()
+//                            .frame(width: 20, height: 20)
+//                            .padding(.trailing, 45.0)
+//                    }
+//                    .background(GeometryReader { geometry in
+//                        Path { _ in
+//                            DispatchQueue.main.async {
+//                                self.bubbleHeight = geometry.size.height + 20
+//                            }
+//                        }
+//                    })
+//                    Spacer()
+//                }
+//                .ignoresSafeArea()
+//                            }
         }
         .onTapGesture {
-            print("onTapGesture")
-            if self.tutorialNum == 6 && showTestuser == false {
-                tutorialNum = 77
+            print("onTapGestureaaa")
+            if self.tutorialNum == 5 {
+                tutorialNum = 66
+                hasSearched = true
             }
-            else if self.tutorialNum == 77 && showTestuser == true {
-                self.tutorialNum = 7 // タップでチュートリアルを終了
+            else if showTestuser == true {
+                self.tutorialNum = 0 // タップでチュートリアルを終了
                 viewModel.authenticateUser { isAuthenticated in
                     if isAuthenticated {
-                        viewModel.updateTutorialNum(userId: currentUser?.id ?? "", tutorialNum: 7) { success in
-                            // データベースのアップデートが成功したかどうかをハンドリング
-                        }
-                    }
-                }
-            }else if self.tutorialNum == 7 {
-                self.tutorialNum = 8 // タップでチュートリアルを終了
-                viewModel.authenticateUser { isAuthenticated in
-                    if isAuthenticated {
-                        viewModel.updateTutorialNum(userId: currentUser?.id ?? "", tutorialNum: 8) { success in
-                            // データベースのアップデートが成功したかどうかをハンドリング
-                        }
-                    }
-                }
-            }else if self.tutorialNum == 0 {
-                self.tutorialNum = 9 // タップでチュートリアルを終了
-                viewModel.authenticateUser { isAuthenticated in
-                    if isAuthenticated {
-                        viewModel.updateTutorialNum(userId: currentUser?.id ?? "", tutorialNum: 9) { success in
+                        viewModel.updateTutorialNum(userId: currentUser?.id ?? "", tutorialNum: 6) { success in
                             // データベースのアップデートが成功したかどうかをハンドリング
                         }
                     }
                 }
             }
+//            else if self.tutorialNum == 7 {
+//                self.tutorialNum = 8 // タップでチュートリアルを終了
+//                viewModel.authenticateUser { isAuthenticated in
+//                    if isAuthenticated {
+//                        viewModel.updateTutorialNum(userId: currentUser?.id ?? "", tutorialNum: 8) { success in
+//                            // データベースのアップデートが成功したかどうかをハンドリング
+//                        }
+//                    }
+//                }
+//            }else if self.tutorialNum == 0 {
+//                self.tutorialNum = 9 // タップでチュートリアルを終了
+//                viewModel.authenticateUser { isAuthenticated in
+//                    if isAuthenticated {
+//                        viewModel.updateTutorialNum(userId: currentUser?.id ?? "", tutorialNum: 9) { success in
+//                            // データベースのアップデートが成功したかどうかをハンドリング
+//                        }
+//                    }
+//                }
+//            }
         }
     }
     func getUserRooms() -> [String] {
@@ -489,8 +659,8 @@ struct RoomCreationPopupView: View {
 
     var body: some View {
         
+    NavigationView {
             ZStack{
-        NavigationView {
                 VStack(spacing: 20){
                     HStack {
                         Text("グループ名を入力してください")
@@ -577,26 +747,6 @@ struct RoomCreationPopupView: View {
                     Spacer()
                 }
             
-            .onAppear {
-                viewModel.authenticateUser { isAuthenticated in
-                    if isAuthenticated {
-                        currentUser = viewModel.users.first(where: { $0.id == viewModel.currentUserId })
-    //                        print(currentUser)
-                        // 認証成功時の処理
-    //                        print("認証に成功しました")
-    //                        if self.tutorialNum == 2 {
-                            self.tutorialNum = currentUser!.tutorialNum
-    //                        }
-                    } else {
-                        // 認証失敗時の処理
-                    }
-                }
-            }
-
-            }                                   .onPreferenceChange(ViewPositionKey.self) { positions in
-                self.buttonRect = positions.first ?? .zero
-            }
-//            .padding()
                 if tutorialNum == 2 {
                     GeometryReader { geometry in
                         Color.black.opacity(0.5)
@@ -614,6 +764,10 @@ struct RoomCreationPopupView: View {
                         Spacer()
                             .frame(height: buttonRect.minY - bubbleHeight)
                         VStack(alignment: .trailing, spacing: .zero) {
+                        Image("上矢印")
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                            .padding(.trailing, 45.0)
                             Text("作成するグループの名前を入力します。")
                                 .font(.system(size: 20.0))
                                 .padding(.all, 20.0)
@@ -621,36 +775,58 @@ struct RoomCreationPopupView: View {
                                 .cornerRadius(4.0)
                                 .padding(.horizontal, 3)
                                 .foregroundColor(Color("fontGray"))
-                            Image("下矢印")
-                                .resizable()
-                                .frame(width: 20, height: 20)
-                                .padding(.trailing, 45.0)
                         }
                         .background(GeometryReader { geometry in
                             Path { _ in
                                 DispatchQueue.main.async {
-                                    self.bubbleHeight = geometry.size.height + 10
+                                    self.bubbleHeight = geometry.size.height - 160
                                 }
                             }
                         })
                         Spacer()
                     }
                     .ignoresSafeArea()
-                }
                     
-        }.onTapGesture {
-            print("onTapGesture")
-            if self.tutorialNum == 2 {
-//                self.tutorialNum = 0 // タップでチュートリアルを終了
-                viewModel.authenticateUser { isAuthenticated in
-                    if isAuthenticated {
-                        viewModel.updateTutorialNum(userId: viewModel.currentUserId ?? "", tutorialNum: 3) { success in
-                            // データベースのアップデートが成功したかどうかをハンドリング
+                }
+
+            }                                   .onPreferenceChange(ViewPositionKey.self) { positions in
+                self.buttonRect = positions.first ?? .zero
+            }
+            .onTapGesture {
+                    print("onTapGesturehhh")
+                    if self.tutorialNum == 2 {
+                        self.tutorialNum = 3 // タップでチュートリアルを終了
+                        viewModel.authenticateUser { isAuthenticated in
+                            if isAuthenticated {
+                                viewModel.updateTutorialNum(userId: viewModel.currentUserId ?? "", tutorialNum: 3) { success in
+                                    // データベースのアップデートが成功したかどうかをハンドリング
+                                }
+                            }
                         }
                     }
                 }
+            .onAppear {
+                viewModel.authenticateUser { isAuthenticated in
+                    if isAuthenticated {
+                        currentUser = viewModel.users.first(where: { $0.id == viewModel.currentUserId })
+    //                        print(currentUser)
+                        // 認証成功時の処理
+    //                        print("認証に成功しました")
+                            if currentUser!.tutorialNum == 2{
+                            self.tutorialNum = currentUser!.tutorialNum
+                        print("dddd")
+                        print(self.tutorialNum)
+                            }
+                    } else {
+                        // 認証失敗時の処理
+                    }
+                }
             }
+//            .padding()
+                
+                    
         }
+
             
 //        }
     }
@@ -798,7 +974,7 @@ struct StatusInputView: View {
                 NavigationLink("", destination: ContentView().navigationBarBackButtonHidden(true), isActive: $isContentView)
             }
             
-            if tutorialNum == 3 {
+            if self.tutorialNum == 3 {
                 GeometryReader { geometry in
                     Color.black.opacity(0.5)
                         .overlay(
@@ -838,52 +1014,60 @@ struct StatusInputView: View {
                 }
                 .ignoresSafeArea()
             }
-            if tutorialNum == 4 {
-                GeometryReader { geometry in
-                    Color.black.opacity(0.5)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                .frame(width: buttonRect2.width, height: buttonRect2.height + 0)
-                                .position(x: buttonRect2.midX, y: buttonRect2.midY)
-                                .blendMode(.destinationOut)
-                        )
-                        .ignoresSafeArea()
-                        .compositingGroup()
-                        .background(.clear)
-                }
-                VStack {
-                    Spacer()
-                        .frame(height: buttonRect.minY - bubbleHeight)
-                    VStack(alignment: .trailing, spacing: .zero) {
-                        Text("「サンプルを入力」をクリックすると\n自動でステータスが入力されます。")
-                            .font(.system(size: 20.0))
-                            .padding(.all, 10.0)
-                            .background(Color.white)
-                            .cornerRadius(4.0)
-                            .padding(.horizontal, 3)
-                            .foregroundColor(Color("fontGray"))
-                        Image("下矢印")
-                            .resizable()
-                            .frame(width: 20, height: 20)
-                            .padding(.trailing, 165.0)
-                    }
-                    .background(GeometryReader { geometry in
-                        Path { _ in
-                            DispatchQueue.main.async {
-                                self.bubbleHeight = geometry.size.height - 220
-                            }
-                        }
-                    })
-                    Spacer()
-                }
-                .ignoresSafeArea()
-            }
+//            if tutorialNum == 4 {
+//                GeometryReader { geometry in
+//                    Color.black.opacity(0.5)
+//                        .overlay(
+//                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+//                                .frame(width: buttonRect2.width, height: buttonRect2.height + 0)
+//                                .position(x: buttonRect2.midX, y: buttonRect2.midY)
+//                                .blendMode(.destinationOut)
+//                        )
+//                        .ignoresSafeArea()
+//                        .compositingGroup()
+//                        .background(.clear)
+//                }
+//                VStack {
+//                    Spacer()
+//                        .frame(height: buttonRect.minY - bubbleHeight)
+//                    VStack(alignment: .trailing, spacing: .zero) {
+//                        Text("「サンプルを入力」をクリックすると\n自動でステータスが入力されます。")
+//                            .font(.system(size: 20.0))
+//                            .padding(.all, 10.0)
+//                            .background(Color.white)
+//                            .cornerRadius(4.0)
+//                            .padding(.horizontal, 3)
+//                            .foregroundColor(Color("fontGray"))
+//                        Image("下矢印")
+//                            .resizable()
+//                            .frame(width: 20, height: 20)
+//                            .padding(.trailing, 165.0)
+//                    }
+//                    .background(GeometryReader { geometry in
+//                        Path { _ in
+//                            DispatchQueue.main.async {
+//                                self.bubbleHeight = geometry.size.height - 220
+//                            }
+//                        }
+//                    })
+//                    Spacer()
+//                }
+//                .ignoresSafeArea()
+//            }
         }
-        .onPreferenceChange(ViewPositionKey.self) { positions in
-            self.buttonRect = positions.first ?? .zero
-        }
-        .onPreferenceChange(ViewPositionKey1.self) { positions in
-            self.buttonRect2 = positions.first ?? .zero
+        .onTapGesture {
+            if self.tutorialNum == 3 {
+                self.tutorialNum = 0
+                print("currentUserid")
+                print(currentUser?.id)
+                viewModel.updateTutorialNum(userId: currentUser?.id ?? "", tutorialNum: 4) { success in
+                }
+            } 
+//            else if tutorialNum == 4 {
+//                tutorialNum = 5
+//                viewModel.updateTutorialNum(userId: currentUser?.id ?? "", tutorialNum: 5) { success in
+//                }
+//            }
         }
         .onAppear {
             viewModel.authenticateUser { isAuthenticated in
@@ -893,24 +1077,24 @@ struct StatusInputView: View {
                     // 認証成功時の処理
 //                        print("認証に成功しました")
 //                        if self.tutorialNum == 2 {
-                        self.tutorialNum = currentUser!.tutorialNum
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                    if currentUser!.tutorialNum == 3{
+                    self.tutorialNum = currentUser!.tutorialNum
+                    }
+//                    }
 //                        }
                 } else {
                     // 認証失敗時の処理
                 }
             }
         }
-        .onTapGesture {
-            if tutorialNum == 3 {
-                tutorialNum = 4
-                viewModel.updateTutorialNum(userId: currentUser?.id ?? "", tutorialNum: 4) { success in
-                }
-            } else if tutorialNum == 4 {
-                tutorialNum = 5
-                viewModel.updateTutorialNum(userId: currentUser?.id ?? "", tutorialNum: 5) { success in
-                }
-            }
+        .onPreferenceChange(ViewPositionKey.self) { positions in
+            self.buttonRect = positions.first ?? .zero
         }
+        .onPreferenceChange(ViewPositionKey1.self) { positions in
+            self.buttonRect2 = positions.first ?? .zero
+        }
+        
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading: Button(action: {
             self.presentationMode.wrappedValue.dismiss()
@@ -1024,7 +1208,7 @@ struct RoomListView: View {
                                             .padding()
                                     }
                                     .onTapGesture {
-                                        self.selectedRoom = room
+//                                        self.selectedRoom = room
                                         self.isNavigating = true
                                     }
                                     .frame(width: .infinity)
@@ -1150,7 +1334,7 @@ struct RoomListView: View {
                     }
                     .ignoresSafeArea()
                 }
-                if tutorialNum == 5 {
+                if tutorialNum == 4 {
                     GeometryReader { geometry in
                         Color.black.opacity(0.5)
                             .overlay(
@@ -1190,7 +1374,7 @@ struct RoomListView: View {
                     }
                     .ignoresSafeArea()
                 }
-                if tutorialNum == 0 {
+                if tutorialNum == 99 {
                     GeometryReader { geometry in
                         Color.black.opacity(0.5)
                             .overlay(
@@ -1250,21 +1434,24 @@ struct RoomListView: View {
 //                                self.tutorialNum3 = 3
 //                            }
 //                        }
-                        self.tutorialNum = currentUser!.tutorialNum
+                        print("lllll")
+                        if currentUser!.tutorialNum == 1 || currentUser!.tutorialNum == 4 || currentUser!.tutorialNum == 99 {
+                            self.tutorialNum = currentUser!.tutorialNum
+                        }
                     } else {
                         // 認証失敗時の処理
                     }
                 }
             }
             .onTapGesture {
-                print("onTapGesture")
+                print("onTapGesturekkk")
                 if tutorialNum == 1 {
                     tutorialNum = 2
                     viewModel.updateTutorialNum(userId: viewModel.currentUserId ?? "", tutorialNum: 2) { success in
                     }
-                } else if tutorialNum == 5 {
+                } else if tutorialNum == 4 {
                     tutorialNum = 0
-                    viewModel.updateTutorialNum(userId: viewModel.currentUserId ?? "", tutorialNum: 6) { success in
+                    viewModel.updateTutorialNum(userId: viewModel.currentUserId ?? "", tutorialNum: 5) { success in
                     }
                 } else if tutorialNum == 0 {
                     tutorialNum = 4
