@@ -1,0 +1,6 @@
+framework module Pods_situmon {
+  umbrella header "Pods-situmon-umbrella.h"
+
+  export *
+  module * { export * }
+}
