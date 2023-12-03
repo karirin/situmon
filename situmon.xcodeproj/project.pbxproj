@@ -10,6 +10,10 @@
 		24A21553A47C81AA81EC133E /* Pods_situmon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D485AA4D92C5A3648C55508 /* Pods_situmon.framework */; };
 		264866472B07A48D00DE504A /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 264866462B07A48D00DE504A /* AuthManager.swift */; };
 		264866492B085F3D00DE504A /* TopRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 264866482B085F3D00DE504A /* TopRoomView.swift */; };
+		264A1A872B1CA12B00D0787C /* UserSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 264A1A862B1CA12B00D0787C /* UserSearchView.swift */; };
+		264A1A892B1CA1C100D0787C /* RoomCreationPopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 264A1A882B1CA1C100D0787C /* RoomCreationPopupView.swift */; };
+		264A1A8B2B1CA26800D0787C /* StatusInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 264A1A8A2B1CA26800D0787C /* StatusInputView.swift */; };
+		264A1A8D2B1CA3F200D0787C /* UserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 264A1A8C2B1CA3F200D0787C /* UserView.swift */; };
 		2664E6D92AE2B52A004C71BD /* UserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2664E6D82AE2B52A004C71BD /* UserViewModel.swift */; };
 		2664E6DB2AE3868B004C71BD /* RoomListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2664E6DA2AE3868B004C71BD /* RoomListView.swift */; };
 		2664E6DD2AE386A3004C71BD /* RoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2664E6DC2AE386A3004C71BD /* RoomView.swift */; };
@@ -28,6 +32,10 @@
 /* Begin PBXFileReference section */
 		264866462B07A48D00DE504A /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
 		264866482B085F3D00DE504A /* TopRoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopRoomView.swift; sourceTree = "<group>"; };
+		264A1A862B1CA12B00D0787C /* UserSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSearchView.swift; sourceTree = "<group>"; };
+		264A1A882B1CA1C100D0787C /* RoomCreationPopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomCreationPopupView.swift; sourceTree = "<group>"; };
+		264A1A8A2B1CA26800D0787C /* StatusInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusInputView.swift; sourceTree = "<group>"; };
+		264A1A8C2B1CA3F200D0787C /* UserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserView.swift; sourceTree = "<group>"; };
 		2664E6D82AE2B52A004C71BD /* UserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserViewModel.swift; sourceTree = "<group>"; };
 		2664E6DA2AE3868B004C71BD /* RoomListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomListView.swift; sourceTree = "<group>"; };
 		2664E6DC2AE386A3004C71BD /* RoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomView.swift; sourceTree = "<group>"; };
@@ -83,7 +91,11 @@
 				26ADE34F2AE1883D009BDF48 /* situmonApp.swift */,
 				2664E6E22AE6DA38004C71BD /* ContentView.swift */,
 				26ADE3512AE1883D009BDF48 /* UserListView.swift */,
+				264A1A8C2B1CA3F200D0787C /* UserView.swift */,
 				2664E6DA2AE3868B004C71BD /* RoomListView.swift */,
+				264A1A8A2B1CA26800D0787C /* StatusInputView.swift */,
+				264A1A882B1CA1C100D0787C /* RoomCreationPopupView.swift */,
+				264A1A862B1CA12B00D0787C /* UserSearchView.swift */,
 				2664E6DC2AE386A3004C71BD /* RoomView.swift */,
 				264866482B085F3D00DE504A /* TopRoomView.swift */,
 				26EBA88B2AE228AF00D43BDF /* RegisterView.swift */,
@@ -242,15 +254,19 @@
 				26EBA88C2AE228AF00D43BDF /* RegisterView.swift in Sources */,
 				2664E6D92AE2B52A004C71BD /* UserViewModel.swift in Sources */,
 				2664E6E32AE6DA38004C71BD /* ContentView.swift in Sources */,
+				264A1A8D2B1CA3F200D0787C /* UserView.swift in Sources */,
 				26ADE3522AE1883D009BDF48 /* UserListView.swift in Sources */,
 				2664E6DD2AE386A3004C71BD /* RoomView.swift in Sources */,
 				26CD50F22AE6DBD5004AF702 /* SettingView.swift in Sources */,
 				26ADE3502AE1883D009BDF48 /* situmonApp.swift in Sources */,
 				264866492B085F3D00DE504A /* TopRoomView.swift in Sources */,
 				2664E6DB2AE3868B004C71BD /* RoomListView.swift in Sources */,
+				264A1A8B2B1CA26800D0787C /* StatusInputView.swift in Sources */,
 				264866472B07A48D00DE504A /* AuthManager.swift in Sources */,
 				26CD50F32AE6DBD5004AF702 /* TermsOfServiceView.swift in Sources */,
 				26CD50F42AE6DBD5004AF702 /* PrivacyView.swift in Sources */,
+				264A1A872B1CA12B00D0787C /* UserSearchView.swift in Sources */,
+				264A1A892B1CA1C100D0787C /* RoomCreationPopupView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

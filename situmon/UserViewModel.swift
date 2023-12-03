@@ -83,7 +83,6 @@ class UserViewModel: ObservableObject {
             
             self?.fetchData { success in
                 if success {
-                    print("データの読み込みが成功しました")
                     self?.fetchUserRooms { rooms in
                         if let rooms = rooms {
 //                            print("rooms:\(rooms)")
@@ -166,7 +165,6 @@ class UserViewModel: ObservableObject {
     }
     
     func fetchUserRooms(completion: @escaping ([Room]?) -> Void) {
-        print("fetchUserRooms")
         guard let userId = self.currentUserId else {
             print("User is not logged in")
             completion(nil)

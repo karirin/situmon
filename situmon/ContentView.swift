@@ -31,13 +31,6 @@ struct ContentView: View {
                              Text("選択された部屋")
                          }
                  }
-//                ZStack {
-////                    UserListView()
-//                }
-//                .tabItem {
-//                    Image(systemName: "calendar")
-//                    Text("カレンダー")
-//                }
                 SettingsView()
                     .tabItem {
                         Image(systemName: "gearshape.fill")

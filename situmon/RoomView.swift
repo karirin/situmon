@@ -68,9 +68,6 @@ struct RoomView: View {
                 // 部屋に含まれるユーザーの一覧を表示
                 UserListView(viewModel: viewModel, members: room.members, room: room)
             }
-            .onAppear{
-                print("room:\(room)")
-            }
             .alert(isPresented: $showingDeleteAlert) {
                 Alert(
                     title: Text("退会"),
