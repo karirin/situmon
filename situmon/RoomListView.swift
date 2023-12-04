@@ -52,6 +52,7 @@ struct RoomListView: View {
     @State private var tutorialNum: Int = 0
     @ObservedObject var authManager: AuthManager
     @State private var currentUser: User?
+    @State private var room: Room?
     
     init() {
         authManager = AuthManager.shared
@@ -91,23 +92,25 @@ struct RoomListView: View {
                     .background(Color("btnColor"))
                     ScrollView {
                         VStack(alignment: .leading) {
+                            NavigationLink(destination: RoomView(room: self.room!, viewModel: viewModel), isActive: $isNavigating) {
+                                EmptyView()
+                            }
                             ForEach(viewModel.sortedActiveRooms) { room in
                                 ZStack {
-                                    NavigationLink(destination: RoomView(room: room, viewModel: viewModel), isActive: $isNavigating) {
-                                        EmptyView()
-                                    }
-                                    HStack {
-                                        Text(room.name)
-                                            .frame(maxWidth: .infinity)
-                                            .padding()
-                                    }
-                                    .onTapGesture {
+                                    Button(action: {
+                                        self.room = room
                                         self.isNavigating = true
+                                    }) {
+                                        HStack {
+                                            Text(room.name)
+                                                .frame(maxWidth: .infinity)
+                                                .padding()
+                                        }
+                                        .frame(width: .infinity)
+                                        .background(Color.white)
+                                        .cornerRadius(10)
+                                        .shadow(radius: 3)
                                     }
-                                    .frame(width: .infinity)
-                                    .background(Color.white)
-                                    .cornerRadius(10)
-                                    .shadow(radius: 3)
                                 }
                                 .background(GeometryReader { geometry in
                                     Color.clear.preference(key: ViewPositionKey2.self, value: [geometry.frame(in: .global)])
@@ -173,17 +176,17 @@ struct RoomListView: View {
                     }
                 )
                 
-//                .onPreferenceChange(ViewPositionKey.self) { positions in
-//                    self.buttonRect = positions.first ?? .zero
-//                }
-//                
-//                .onPreferenceChange(ViewPositionKey1.self) { positions in
-//                    self.buttonRect2 = positions.first ?? .zero
-//                }
-//                
-//                .onPreferenceChange(ViewPositionKey2.self) { positions in
-//                    self.buttonRect3 = positions.first ?? .zero
-//                }
+    //                .onPreferenceChange(ViewPositionKey.self) { positions in
+    //                    self.buttonRect = positions.first ?? .zero
+    //                }
+    //
+    //                .onPreferenceChange(ViewPositionKey1.self) { positions in
+    //                    self.buttonRect2 = positions.first ?? .zero
+    //                }
+    //
+    //                .onPreferenceChange(ViewPositionKey2.self) { positions in
+    //                    self.buttonRect3 = positions.first ?? .zero
+    //                }
 //                if tutorialNum == 1 {
 //                    GeometryReader { geometry in
 //                        Color.black.opacity(0.5)
