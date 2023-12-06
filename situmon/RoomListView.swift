@@ -92,8 +92,10 @@ struct RoomListView: View {
                     .background(Color("btnColor"))
                     ScrollView {
                         VStack(alignment: .leading) {
-                            NavigationLink(destination: RoomView(room: self.room!, viewModel: viewModel), isActive: $isNavigating) {
-                                EmptyView()
+                            if let safeRoom = self.room {
+                                NavigationLink(destination: RoomView(room: safeRoom, viewModel: viewModel), isActive: $isNavigating) {
+                                    EmptyView()
+                                }
                             }
                             ForEach(viewModel.sortedActiveRooms) { room in
                                 ZStack {
@@ -110,6 +112,7 @@ struct RoomListView: View {
                                         .background(Color.white)
                                         .cornerRadius(10)
                                         .shadow(radius: 3)
+                                        .foregroundColor(Color("fontGray"))
                                     }
                                 }
                                 .background(GeometryReader { geometry in
