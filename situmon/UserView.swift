@@ -15,18 +15,21 @@ struct UserView: View {
     @State private var currentUser: User?
     @State private var availableStatuses: [String] = []
     @State private var selectedStatus: String = ""
+    @StateObject var statusColorManager = StatusColorManager.shared
     
     var body: some View {
         VStack{
             HStack {
                 // ステータスに応じた色の丸表示
                 Circle()
-                    .fill(StatusColorManager.shared.color(forUserId: user.id))
+                    .fill(statusColorManager.color(forUserId: user.id))
                     .frame(width: 10, height: 10)
                     .padding(.trailing, 5)
-                    .onChange(of: selectedStatus) { newValue in
-                        if let statusKey = room.statusKey(forLabel: newValue) {
+                    .onChange(of: statusColorManager.colorUpdated) { _ in
+                        if let statusKey = room.statusKey(forLabel: selectedStatus) {
                             StatusColorManager.shared.updateColor(forUserId: user.id, withStatus: statusKey)
+                            // ここでログ出力
+                            print("Status Updated: \(selectedStatus), Color Updated for User ID: \(user.id)")
                         }
                     }
                 

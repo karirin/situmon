@@ -27,10 +27,11 @@ extension UserStatus {
     }
 }
 
-class StatusColorManager {
+class StatusColorManager: ObservableObject {
     static let shared = StatusColorManager()
     private var userStatusColorMap: [String: Color] = [:]
     private var userStatusTextMap: [String: String] = [:]
+    @Published var colorUpdated = false
     
     func updateColor(forUserId userId: String, withStatus status: String) {
         switch status {
@@ -43,6 +44,9 @@ class StatusColorManager {
         default:
             userStatusColorMap[userId] = Color.gray
         }
+        print("updateColor")
+        print(userStatusColorMap[userId])
+        self.colorUpdated.toggle()
     }
 
     func updateStatusColors(with userStatuses: [String: String]) {
@@ -67,6 +71,8 @@ class StatusColorManager {
     }
 
     func color(forUserId userId: String) -> Color {
+        print("color")
+        print(userStatusColorMap[userId])
         return userStatusColorMap[userId] ?? Color.gray
     }
     
